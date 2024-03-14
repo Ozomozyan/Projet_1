@@ -7,7 +7,7 @@ def create_conn():
         host='Esat.mysql.pythonanywhere-services.com',  # Your PythonAnywhere database host
         user='Esat',  # Your PythonAnywhere username
         passwd='C>3Gmt-4_2h3Fp)/',  # Your MySQL password
-        database='utilisateurs'  # Your database name
+        database='Esat$utilisateurs'  # Your database name
     )
 
 def register(nom, prenom, password):
