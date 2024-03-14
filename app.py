@@ -18,8 +18,8 @@ def login():
         password = request.form['password']
         user = user_management.login(username, password)
         if user:
-            session['user_id'] = user.get_login()
-            session['role'] = user.get_role()
+            session['user_id'] = user['login']  # Changed from get_login() to ['login']
+            session['role'] = user['role']  # Changed from get_role() to ['role']
             return redirect(url_for('dashboard'))
         else:
             error = 'Invalid username or password'
