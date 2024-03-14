@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <h2>User Dashboard</h2>
+    <p>Manage your encrypted text:</p>
+
+    <!-- Display decrypted text if available -->
+    {% if decrypted_text %}
+        <div class="alert alert-info">Your decrypted text: {{ decrypted_text }}</div>
+    {% endif %}
+
+    <!-- Form for adding/modifying encrypted text -->
+    <form action="/save_text" method="post">
+        <div class="form-group">
+            <label for="encryptedText">Encrypted Text</label>
+            <textarea class="form-control" id="encryptedText" name="encrypted_text" rows="3" placeholder="Enter text to encrypt"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Text</button>
+    </form>
+
+    <!-- Optionally, include a form for modifying text if you wish to differentiate between adding and modifying -->
+
+    <!-- Button for removing encrypted text -->
+    <form action="/remove_text" method="post" class="mt-3">
+        <button type="submit" class="btn btn-danger">Remove My Encrypted Text</button>
+    </form>
+
+    <a href="/logout" class="btn btn-secondary mt-3">Logout</a>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.6/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

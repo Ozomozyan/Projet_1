@@ -41,16 +41,31 @@ def register():
             pass
     return render_template('register.html')
 
-@app.route('/dashboard')
+@app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
     if 'user_id' not in session:
         return redirect(url_for('login'))
-    # Display different dashboard based on role
-    if session['role'] == 'admin':
-        return render_template('admin_dashboard.html')
-    else:
-        # Assume a simple user dashboard for demonstration
-        return 'User Dashboard - <a href="/logout">Logout</a>'
+    
+    decrypted_text = None
+    user = user_management.get_user(session['user_id'])
+
+    if request.method == 'POST':
+        if 'encrypted_text' in request.form:
+            # Save or modify the encrypted text
+            text_to_encrypt = request.form['encrypted_text']
+            user_management.save_encrypted_text(user, text_to_encrypt)
+            return redirect(url_for('dashboard'))
+
+    decrypted_text = user_management.get_decrypted_text(user)
+
+    return render_template('user_dashboard.html', decrypted_text=decrypted_text)
+
+@app.route('/remove_text', methods=['POST'])
+def remove_text():
+    if 'user_id' in session:
+        user = user_management.get_user(session['user_id'])
+        user_management.remove_encrypted_text(user)
+    return redirect(url_for('dashboard'))
 
 @app.route('/logout')
 def logout():
