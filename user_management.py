@@ -13,12 +13,7 @@ def create_conn():
 def register(nom, prenom, password):
     conn = None  # Initialize conn to None outside of the try block
     try:
-        conn = mysql.connector.connect(
-            host='your_host',
-            user='your_user',
-            passwd='your_password',
-            database='your_database'
-        )
+        conn = create_conn()
         cursor = conn.cursor()
         hashed_password = generate_password_hash(password)
         cursor.execute("INSERT INTO users (nom, prenom, mtp) VALUES (%s, %s, %s)", (nom, prenom, hashed_password))
