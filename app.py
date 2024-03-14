@@ -18,8 +18,8 @@ def login():
         password = request.form['password']
         user = user_management.login(username, password)
         if user:
-            session['user_id'] = user['login']  # Changed from get_login() to ['login']
-            session['role'] = user['role']  # Changed from get_role() to ['role']
+            session['user_id'] = user['login']  # Ensure the login attribute is correctly named in your user dictionary
+            session['role'] = user['role']  # Ensure the role attribute is correctly named in your user dictionary
             return redirect(url_for('dashboard'))
         else:
             error = 'Invalid username or password'
@@ -28,17 +28,12 @@ def login():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        # Extract registration form data
         nom = request.form['nom']
         prenom = request.form['prenom']
         password = request.form['password']
-        # Call your user management system to register user
         success = user_management.register(nom, prenom, password)
         if success:
             return redirect(url_for('login'))
-        else:
-            # Handle registration error
-            pass
     return render_template('register.html')
 
 @app.route('/dashboard', methods=['GET', 'POST'])
@@ -46,24 +41,28 @@ def dashboard():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     
+    user_login = session['user_id']
+    user = user_management.get_user(user_login)
+    
+    if user is None:
+        return "User not found", 404
+    
     decrypted_text = None
-    user = user_management.get_user(session['user_id'])
-
-    if request.method == 'POST':
-        if 'encrypted_text' in request.form:
-            # Save or modify the encrypted text
-            text_to_encrypt = request.form['encrypted_text']
-            user_management.save_encrypted_text(user, text_to_encrypt)
-            return redirect(url_for('dashboard'))
-
-    decrypted_text = user_management.get_decrypted_text(user)
-
+    if 'encrypted_text' in request.form:
+        # Logic for handling encrypted text submission
+        text_to_encrypt = request.form['encrypted_text']
+        user_management.save_encrypted_text(user, text_to_encrypt)
+        return redirect(url_for('dashboard'))
+    else:
+        decrypted_text = user_management.get_decrypted_text(user)
+    
     return render_template('user_dashboard.html', decrypted_text=decrypted_text)
 
 @app.route('/remove_text', methods=['POST'])
 def remove_text():
     if 'user_id' in session:
-        user = user_management.get_user(session['user_id'])
+        user_login = session['user_id']
+        user = user_management.get_user(user_login)
         user_management.remove_encrypted_text(user)
     return redirect(url_for('dashboard'))
 

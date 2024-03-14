@@ -42,11 +42,17 @@ def register(nom, prenom, password):
             conn.close()
 
 
-def login(username, password):
+def get_user(login):
     conn = create_conn()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM users WHERE login = %s", (username,))
-    user = cursor.fetchone()
-    if user and check_password_hash(user['mtp'], password):
-        return user  # For simplicity, returning the user dictionary
-    return None
+    cursor = conn.cursor(dictionary=True)  # Fetch results as dictionaries
+    try:
+        cursor.execute("SELECT * FROM users WHERE login = %s", (login,))
+        user = cursor.fetchone()
+        return user  # Return the user dictionary
+    except mysql.connector.Error as err:
+        print(f"Error fetching user: {err}")
+        return None
+    finally:
+        cursor.close()
+        conn.close()
+
