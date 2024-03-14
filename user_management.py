@@ -77,12 +77,14 @@ def get_user(login):
         conn.close()
 
 def get_decrypted_text(user):
-    if not user or 'encryption_key' not in user or 'encrypted_text' not in user:
-        return None
-    
-    encryption_key = user['encryption_key']
-    encrypted_text = user['encrypted_text']
-    
-    # Assuming decrypt_data is defined in this module or imported
-    decrypted_text = decrypt_data(encrypted_text, encryption_key)
-    return decrypted_text
+    if user and 'encrypted_text' in user and 'encryption_key' in user:
+        encrypted_text = user['encrypted_text']
+        encryption_key = user['encryption_key']
+        try:
+            # Assuming encryption_key and encrypted_text need processing to be used here
+            decrypted_text = decrypt_data(encrypted_text, encryption_key)
+            return decrypted_text
+        except Exception as e:
+            print(f"Error decrypting text: {e}")
+            return None
+    return None
