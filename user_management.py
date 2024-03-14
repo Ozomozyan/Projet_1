@@ -11,18 +11,24 @@ def create_conn():
     )
 
 def register(nom, prenom, password):
+    conn = None  # Initialize conn to None outside of the try block
     try:
-        conn = create_conn()
+        conn = mysql.connector.connect(
+            host='your_host',
+            user='your_user',
+            passwd='your_password',
+            database='your_database'
+        )
         cursor = conn.cursor()
         hashed_password = generate_password_hash(password)
         cursor.execute("INSERT INTO users (nom, prenom, mtp) VALUES (%s, %s, %s)", (nom, prenom, hashed_password))
         conn.commit()
         return True
     except mysql.connector.Error as err:
-        print("Failed to insert user: {}".format(err))
+        print(f"Error: {err}")
         return False
     finally:
-        if conn.is_connected():
+        if conn and conn.is_connected():  # Check if conn is not None and connected before trying to close
             cursor.close()
             conn.close()
 
