@@ -1,5 +1,17 @@
 import mysql.connector
+import pyaes
 from werkzeug.security import generate_password_hash, check_password_hash
+
+# Function to encrypt data using AES
+def encrypt_data(data, key):
+    aes = pyaes.AESModeOfOperationCTR(key)
+    return aes.encrypt(data.encode('utf-8'))
+
+# Function to decrypt data using AES
+def decrypt_data(data, key):
+    aes = pyaes.AESModeOfOperationCTR(key)
+    decrypted_data = aes.decrypt(data)
+    return decrypted_data.decode('utf-8', errors='ignore')
 
 # Modify create_conn to use your PythonAnywhere MySQL credentials
 def create_conn():
@@ -41,6 +53,14 @@ def register(nom, prenom, password):
             cursor.close()
             conn.close()
 
+def login(username, password):
+    conn = create_conn()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM users WHERE login = %s", (username,))
+    user = cursor.fetchone()
+    if user and check_password_hash(user['mtp'], password):
+        return user  # For simplicity, returning the user dictionary
+    return None
 
 def get_user(login):
     conn = create_conn()
@@ -56,3 +76,15 @@ def get_user(login):
         cursor.close()
         conn.close()
 
+def get_decrypted_text(user):
+    if user and 'encrypted_text' in user and 'encryption_key' in user:
+        encrypted_text = user['encrypted_text']
+        encryption_key = user['encryption_key']
+        try:
+            # Assuming encryption_key and encrypted_text need processing to be used here
+            decrypted_text = decrypt_data(encrypted_text, encryption_key)
+            return decrypted_text
+        except Exception as e:
+            print(f"Error decrypting text: {e}")
+            return None
+    return None
