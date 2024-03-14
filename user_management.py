@@ -7,28 +7,22 @@ def create_conn():
         host='Esat.mysql.pythonanywhere-services.com',  # Your PythonAnywhere database host
         user='Esat',  # Your PythonAnywhere username
         passwd='C>3Gmt-4_2h3Fp)/',  # Your MySQL password
-        database='Esat$utilisateurs'  # Your database name
+        database='utilisateurs'  # Your database name
     )
 
 def register(nom, prenom, password):
-    conn = None  # Initialize conn to None outside of the try block
     try:
-        conn = mysql.connector.connect(
-            host='Esat.mysql.pythonanywhere-services.com',
-            user='Esat',
-            passwd='C>3Gmt-4_2h3Fp)/',
-            database='Esat$utilisateurs'
-        )
+        conn = create_conn()
         cursor = conn.cursor()
         hashed_password = generate_password_hash(password)
         cursor.execute("INSERT INTO users (nom, prenom, mtp) VALUES (%s, %s, %s)", (nom, prenom, hashed_password))
         conn.commit()
         return True
     except mysql.connector.Error as err:
-        print(f"Error: {err}")
+        print("Failed to insert user: {}".format(err))
         return False
     finally:
-        if conn and conn.is_connected():  # Check if conn is not None and connected before trying to close
+        if conn.is_connected():
             cursor.close()
             conn.close()
 
