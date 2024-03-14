@@ -9,22 +9,38 @@ def create_conn():
         passwd='C>3Gmt-4_2h3Fp)/',  # Your MySQL password
         database='Esat$utilisateurs'  # Your database name
     )
+    
+def generate_unique_login(nom, prenom):
+    base_login = f"{prenom[0].lower()}{nom.lower()}"
+    login = base_login
+    counter = 1
+    while True:
+        conn = create_conn()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM users WHERE login = %s", (login,))
+        if cursor.fetchone() is None:
+            return login
+        login = f"{base_login}{counter}"
+        counter += 1
+
 
 def register(nom, prenom, password):
+    login = generate_unique_login(nom, prenom)  # Ensure this function generates a unique login
+    hashed_password = generate_password_hash(password)
     try:
         conn = create_conn()
         cursor = conn.cursor()
-        hashed_password = generate_password_hash(password)
-        cursor.execute("INSERT INTO users (nom, prenom, mtp) VALUES (%s, %s, %s)", (nom, prenom, hashed_password))
+        cursor.execute("INSERT INTO users (login, nom, prenom, mtp) VALUES (%s, %s, %s, %s)", (login, nom, prenom, hashed_password))
         conn.commit()
         return True
     except mysql.connector.Error as err:
-        print("Failed to insert user: {}".format(err))
+        print(f"Failed to insert user: {err}")
         return False
     finally:
         if conn.is_connected():
             cursor.close()
             conn.close()
+
 
 def login(username, password):
     conn = create_conn()
