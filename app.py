@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 import user_management
 
 app = Flask(__name__)
@@ -35,6 +35,31 @@ def register():
         if success:
             return redirect(url_for('login'))
     return render_template('register.html')
+
+@app.route('/save_text', methods=['POST'])
+def save_text():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    user_login = session['user_id']
+    user = user_management.get_user(user_login)
+    
+    if user is None:
+        return "User not found", 404
+
+    if 'encrypted_text' in request.form:
+        text_to_encrypt = request.form['encrypted_text']
+        # Assume save_encrypted_text function exists and correctly handles the encryption and saving
+        success = user_management.save_encrypted_text(user, text_to_encrypt)
+        if success:
+            flash("Text encrypted and saved successfully.", "success")
+        else:
+            flash("Failed to save encrypted text.", "error")
+    else:
+        flash("No text provided.", "error")
+
+    return redirect(url_for('dashboard'))
+
 
 @app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():

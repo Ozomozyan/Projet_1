@@ -75,6 +75,31 @@ def get_user(login):
     finally:
         cursor.close()
         conn.close()
+        
+def save_encrypted_text(user, text_to_encrypt):
+    if user and 'login' in user:
+        login = user['login']
+        # Generate or retrieve the user's encryption key here
+        encryption_key = user.get('encryption_key', generate_new_encryption_key())
+        encrypted_text = encrypt_data(text_to_encrypt, encryption_key)
+        
+        # Convert encryption_key and encrypted_text to formats suitable for database storage if necessary
+        
+        try:
+            conn = create_conn()
+            cursor = conn.cursor()
+            cursor.execute("UPDATE users SET encrypted_text = %s, encryption_key = %s WHERE login = %s", (encrypted_text, encryption_key, login))
+            conn.commit()
+            return True
+        except mysql.connector.Error as err:
+            print(f"Failed to save encrypted text: {err}")
+            return False
+        finally:
+            if conn.is_connected():
+                cursor.close()
+                conn.close()
+    return False
+
 
 def get_decrypted_text(user):
     if user and 'encrypted_text' in user and 'encryption_key' in user:
