@@ -102,14 +102,17 @@ def save_encrypted_text(user, text_to_encrypt):
 
 
 def get_decrypted_text(user):
-    if user and 'encrypted_text' in user and 'encryption_key' in user:
-        encrypted_text = user['encrypted_text']
-        encryption_key = user['encryption_key']
-        try:
-            # Assuming encryption_key and encrypted_text need processing to be used here
-            decrypted_text = decrypt_data(encrypted_text, encryption_key)
-            return decrypted_text
-        except Exception as e:
-            print(f"Error decrypting text: {e}")
-            return None
-    return None
+    encrypted_text = user.get('encrypted_text')
+    encryption_key = user.get('encryption_key')
+    
+    # Check if either the encrypted text or the encryption key is None
+    if encrypted_text is None or encryption_key is None:
+        print("Encrypted text or encryption key is missing.")
+        return None
+
+    try:
+        decrypted_text = decrypt_data(encrypted_text, encryption_key)
+        return decrypted_text
+    except Exception as e:
+        print(f"Error decrypting text: {e}")
+        return None
