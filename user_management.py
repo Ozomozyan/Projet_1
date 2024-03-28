@@ -110,7 +110,9 @@ def decode_for_usage(encoded_data):
     """
     if encoded_data is None:
         return None
-    return base64.b64decode(encoded_data.encode('utf-8'))
+    # Directly decode without encoding as base64.b64decode can handle string input.
+    return base64.b64decode(encoded_data)
+
 
 
 
