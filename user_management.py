@@ -3,6 +3,13 @@ import pyaes
 from werkzeug.security import generate_password_hash, check_password_hash
 import base64
 import os
+from cryptography.fernet import Fernet
+
+# Load the master key from an environment variable
+MASTER_KEY = os.getenv('MVn4dQlVkI7TXBlHY60mHE0L7I4RKz7rpzDDczV24C8=')
+if MASTER_KEY is None:
+    raise ValueError("Master key not found in environment variables")
+fernet = Fernet(MASTER_KEY)
 
 # Function to encrypt data using AES
 def encrypt_data(data, key):
@@ -77,74 +84,123 @@ def get_user(login):
     finally:
         cursor.close()
         conn.close()
-
-
-def generate_new_encryption_key(key_length=32):
-    """Generate a new AES encryption key."""
-    return os.urandom(key_length)
-
+        
+        
 def encode_for_storage(data):
-    """Encode binary data using Base64 for database storage."""
+    """Encode binary data using Base64 for database storage.
+    
+    Args:
+        data (bytes): The binary data to encode.
+    
+    Returns:
+        str: The Base64-encoded string representation of the data.
+    """
+    if data is None:
+        return None
     return base64.b64encode(data).decode('utf-8')
 
 def decode_for_usage(encoded_data):
-    """Decode Base64-encoded data back into binary form for usage."""
+    """Decode Base64-encoded data back into binary form for usage.
+    
+    Args:
+        encoded_data (str): The Base64-encoded string representation of the data.
+    
+    Returns:
+        bytes: The original binary data.
+    """
+    if encoded_data is None:
+        return None
     return base64.b64decode(encoded_data.encode('utf-8'))
 
+
+
+def generate_new_encryption_key(key_length=32):
+    return os.urandom(key_length)
+
+def encrypt_key_for_storage(encryption_key):
+    return fernet.encrypt(encryption_key)
+
+def decrypt_key_for_usage(encrypted_key):
+    return fernet.decrypt(encrypted_key)
+
 def secure_store_key(user_login, encryption_key):
-    """Securely store the encryption key.
+    encrypted_key_for_storage = encrypt_key_for_storage(encryption_key)
+    conn = create_conn()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE users SET encryption_key = %s WHERE login = %s", 
+                   (encrypted_key_for_storage, user_login))
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+def retrieve_and_decrypt_key(user_login):
+    conn = create_conn()
+    cursor = conn.cursor()
+    cursor.execute("SELECT encryption_key FROM users WHERE login = %s", (user_login,))
+    encrypted_key = cursor.fetchone()[0]
+    decrypted_key = decrypt_key_for_usage(encrypted_key)
+    cursor.close()
+    conn.close()
+    return decrypted_key
+
+def save_encrypted_text(user_login, text_to_encrypt):
+    conn = create_conn()
+    cursor = conn.cursor(dictionary=True)
     
-    Implement according to your security requirements. This could involve encrypting
-    the key itself with a master key, using a dedicated key management service, etc.
-    """
-    # Placeholder for secure encryption key storage logic
-    pass
-
-def save_encrypted_text(user, text_to_encrypt):
-    if user and 'login' in user:
-        login = user['login']
-        # Generate a new encryption key if necessary and securely store it
-        encryption_key = user.get('encryption_key')
-        if encryption_key is None:
-            encryption_key = generate_new_encryption_key()
-            secure_store_key(login, encryption_key)  # Securely store the new key
-            user['encryption_key'] = encode_for_storage(encryption_key)  # Store encoded key for session usage
-        
-        # Encrypt the text and encode both the encrypted text and key for database storage
-        encrypted_text = encrypt_data(text_to_encrypt, decode_for_usage(user['encryption_key']))
-        encrypted_text_encoded = encode_for_storage(encrypted_text)
-        
-        try:
-            conn = create_conn()
-            cursor = conn.cursor()
-            # Update the database with the encoded encrypted text (and potentially the encoded key)
-            cursor.execute("UPDATE users SET encrypted_text = %s WHERE login = %s", 
-                           (encrypted_text_encoded, login))
-            conn.commit()
-            return True
-        except mysql.connector.Error as err:
-            print(f"Failed to save encrypted text: {err}")
-            return False
-        finally:
-            cursor.close()
-            conn.close()
-    return False
-
-
-
-
-def get_decrypted_text(user):
-    encrypted_text = user.get('encrypted_text')
-    encryption_key = user.get('encryption_key')
+    # Generate or retrieve the user's AES encryption key
+    cursor.execute("SELECT encryption_key FROM users WHERE login = %s", (user_login,))
+    result = cursor.fetchone()
     
-    # Check if either the encrypted text or the encryption key is None
-    if encrypted_text is None or encryption_key is None:
+    if result and result['encryption_key']:
+        encrypted_aes_key = result['encryption_key']
+        aes_key = decrypt_key_for_usage(encrypted_aes_key)
+    else:
+        aes_key = generate_new_encryption_key()
+        encrypted_aes_key = encrypt_key_for_storage(aes_key)
+    
+    # Encrypt the user's text with the AES key
+    encrypted_text = encrypt_data(text_to_encrypt, aes_key)
+    encrypted_text_encoded = encode_for_storage(encrypted_text)
+    
+    # Update the user record with the encrypted text and AES key (encrypted with the master key)
+    try:
+        cursor.execute("UPDATE users SET encrypted_text = %s, encryption_key = %s WHERE login = %s", 
+                       (encrypted_text_encoded, encrypted_aes_key, user_login))
+        conn.commit()
+    except mysql.connector.Error as err:
+        print(f"Failed to save encrypted text: {err}")
+        return False
+    finally:
+        cursor.close()
+        conn.close()
+    
+    return True
+
+
+
+
+
+def get_decrypted_text(user_login):
+    conn = create_conn()
+    cursor = conn.cursor(dictionary=True)
+    
+    cursor.execute("SELECT encrypted_text, encryption_key FROM users WHERE login = %s", (user_login,))
+    result = cursor.fetchone()
+    
+    if not result or 'encrypted_text' not in result or 'encryption_key' not in result:
         print("Encrypted text or encryption key is missing.")
         return None
-
-    try:
-        decrypted_text = decrypt_data(encrypted_text, encryption_key)
+    
+    encrypted_text_encoded = result['encrypted_text']
+    encrypted_aes_key = result['encryption_key']
+    
+    if encrypted_text_encoded and encrypted_aes_key:
+        # Decrypt the AES key with the master key
+        aes_key = decrypt_key_for_usage(encrypted_aes_key)
+        # Decode the encrypted text from storage format
+        encrypted_text = decode_for_usage(encrypted_text_encoded)
+        # Decrypt the text with the AES key
+        decrypted_text = decrypt_data(encrypted_text, aes_key)
         return decrypted_text
-    except Exception as e:
-        print(f"Error decrypting text: {e}")
-        return None
+    
+    return None
