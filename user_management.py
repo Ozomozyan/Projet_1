@@ -5,11 +5,11 @@ import base64
 import os
 from cryptography.fernet import Fernet
 
-# Load the master key from an environment variable
-MASTER_KEY = os.getenv('MVn4dQlVkI7TXBlHY60mHE0L7I4RKz7rpzDDczV24C8=')
+# Correct approach to load the master key from an environment variable
+MASTER_KEY = os.getenv('MASTER_KEY')
 if MASTER_KEY is None:
     raise ValueError("Master key not found in environment variables")
-fernet = Fernet(MASTER_KEY)
+fernet = Fernet(MASTER_KEY.encode())
 
 # Function to encrypt data using AES
 def encrypt_data(data, key):
