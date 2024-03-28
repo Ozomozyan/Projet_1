@@ -63,14 +63,20 @@ def dashboard():
     return render_template('user_dashboard.html', decrypted_text=decrypted_text)
 
 @app.route('/remove_text', methods=['POST'])
-def remove_text():
-    if 'user_id' in session:
-        user_login = session['user_id']
-        if user_management.remove_encrypted_text(user_login):
-            flash('Encrypted text removed successfully.', 'success')
-        else:
-            flash('Failed to remove encrypted text.', 'error')
+def web_remove_text():
+    if 'user_id' not in session:
+        # Redirect the user to login page if not logged in
+        return redirect(url_for('login'))
+
+    user_login = session['user_id']
+    success = user_management.remove_encrypted_text(user_login)
+    if success:
+        flash("Encrypted text removed successfully.", "success")
+    else:
+        flash("Failed to remove encrypted text.", "error")
+    
     return redirect(url_for('dashboard'))
+
 
 @app.route('/logout')
 def logout():

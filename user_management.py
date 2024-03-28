@@ -206,3 +206,27 @@ def get_decrypted_text(user_login):
         return decrypted_text
     
     return None
+
+def remove_encrypted_text(user_login):
+    """Remove the encrypted text for a specific user.
+
+    Args:
+        user_login (str): The login identifier for the user.
+
+    Returns:
+        bool: True if the operation was successful, False otherwise.
+    """
+    try:
+        conn = create_conn()
+        cursor = conn.cursor()
+        # Set encrypted_text to NULL for the user identified by user_login
+        cursor.execute("UPDATE users SET encrypted_text = NULL WHERE login = %s", (user_login,))
+        conn.commit()
+        return True
+    except mysql.connector.Error as err:
+        print(f"Failed to remove encrypted text: {err}")
+        return False
+    finally:
+        if conn.is_connected():
+            cursor.close()
+            conn.close()
