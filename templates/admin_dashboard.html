@@ -27,7 +27,7 @@
                 <td>{{ user.role }}</td>
                 <td>
                     <!-- Previous select and update role button -->
-                    <button class="btn btn-sm btn-secondary edit-user-btn" data-user-login="{{ user.login }}" data-toggle="modal" data-target="#editUserModal-{{ user.login }}">Edit</button>
+                    <button class="btn btn-sm btn-secondary edit-user-btn" data-toggle="modal" data-target="#editUserModal" data-user-login="{{ user.login }}" data-user-nom="{{ user.nom }}" data-user-prenom="{{ user.prenom }}" data-user-role="{{ user.role }}">Edit</button>
                 </td>                
                 <td>
                     <select class="form-control role-select" data-user-login="{{ user.login }}">
@@ -43,7 +43,7 @@
 </div>
 
 <!-- Edit User Modal -->
-<div class="modal fade" id="editUserModal-{{ user.login }}" tabindex="-1" role="dialog" aria-labelledby="editUserModalLabel" aria-hidden="true">
+<div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="editUserModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -101,29 +101,48 @@
             });
         });
     });
-    </script>
-    <script>
-        $(document).ready(function() {
-            $('.save-user-changes').click(function() {
-                const userLogin = $(this).data('user-login');
-                const formData = $(`.edit-user-form[data-user-login="${userLogin}"]`).serialize();
-        
-                $.ajax({
-                    type: "POST",
-                    url: "/admin/update_user_info",
-                    data: formData,
-                    success: function(response) {
-                        alert("User info updated successfully");
-                        $('#editUserModal-' + userLogin).modal('hide');
-                        location.reload(); // Optionally, reload the page or dynamically update the info
-                    },
-                    error: function(error) {
-                        alert("Error updating user info");
-                    }
-                });
+</script>
+<script>
+    $(document).ready(function() {
+        $('.edit-user-btn').on('click', function() {
+            var userLogin = $(this).data('user-login');
+            var userNom = $(this).data('user-nom');
+            var userPrenom = $(this).data('user-prenom');
+            
+            // Set the form action or data attributes
+            $('#editUserModal .edit-user-form').data('user-login', userLogin);
+            
+            // Populate the input fields
+            $('#editUserModal #userNom').val(userNom);
+            $('#editUserModal #userPrenom').val(userPrenom);
+        });
+
+        $('.save-user-changes').click(function() {
+            var userLogin = $('#editUserModal .edit-user-form').data('user-login');
+            var formData = {
+                login: userLogin,
+                nom: $('#editUserModal #userNom').val(),
+                prenom: $('#editUserModal #userPrenom').val(),
+                // Add other form data as needed
+            };
+
+            $.ajax({
+                type: "POST",
+                url: "/admin/update_user_info",
+                data: JSON.stringify(formData),
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function(response) {
+                    alert("User info updated successfully");
+                    $('#editUserModal').modal('hide');
+                    location.reload(); // Or dynamically update the page content
+                },
+                error: function(error) {
+                    alert("Error updating user info");
+                }
             });
         });
-        </script>        
-            
+    });
+</script>    
 </body>
 </html>
