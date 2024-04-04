@@ -64,6 +64,29 @@
             });
         });
     });
-    </script>    
+    </script>
+    <script>
+        $(document).ready(function() {
+            $('.edit-user-form').on('submit', function(e) {
+                e.preventDefault();  // Prevent default form submission
+        
+                var formData = $(this).serialize();  // Serialize form data
+        
+                $.ajax({
+                    type: "POST",
+                    url: "/admin/update_user_info",  // Flask route
+                    data: formData,
+                    success: function(response) {
+                        alert("User info updated successfully");
+                        // Optionally, refresh part of your page or close modal here
+                    },
+                    error: function(error) {
+                        alert("Error updating user info");
+                    }
+                });
+            });
+        });
+        </script>
+            
 </body>
 </html>

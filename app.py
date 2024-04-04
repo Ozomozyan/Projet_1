@@ -137,6 +137,24 @@ def admin_update_user():
         flash("Unauthorized action.", "error")
     return redirect(url_for('admin_dashboard'))
 
+@app.route('/admin/update_user_info', methods=['POST'])
+def admin_update_user_info():
+    if 'user_id' not in session or session['role'] != 'admin':
+        return jsonify({"error": "Unauthorized access"}), 403
+
+    user_login = request.form['user_login']
+    nom = request.form.get('nom')
+    prenom = request.form.get('prenom')
+    password = request.form.get('password')  # Be cautious with password updates
+    role = request.form.get('role')
+
+    success = user_management.admin_update_user_info(login=user_login, nom=nom, prenom=prenom, password=password, role=role)
+
+    if success:
+        return jsonify({"success": "User info updated successfully"}), 200
+    else:
+        return jsonify({"error": "Failed to update user info"}), 500
+
 
 @app.route('/logout')
 def logout():
