@@ -51,6 +51,13 @@
     </form>
 
 
+        <!-- At the bottom of user_dashboard.html -->
+    {% if session['role'] == 'admin' %}
+    <a href="/admin_dashboard" class="btn btn-info mt-3">Admin Dashboard</a>
+    {% endif %}
+
+
+
     <a href="/logout" class="btn btn-secondary mt-3">Logout</a>
 </div>
 

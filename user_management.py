@@ -249,3 +249,42 @@ def update_user_profile(login, nom, prenom, password):
     finally:
         cursor.close()
         conn.close()
+
+
+def admin_update_user_info(login, nom=None, prenom=None, password=None, role=None):
+    conn = create_conn()
+    cursor = conn.cursor()
+    try:
+        updates = []
+        params = []
+
+        if nom:
+            updates.append("nom = %s")
+            params.append(nom)
+
+        if prenom:
+            updates.append("prenom = %s")
+            params.append(prenom)
+
+        if password:
+            hashed_password = generate_password_hash(password)
+            updates.append("mtp = %s")
+            params.append(hashed_password)
+
+        if role:
+            updates.append("role = %s")
+            params.append(role)
+
+        if updates:
+            update_query = "UPDATE users SET " + ", ".join(updates) + " WHERE login = %s"
+            params.append(login)
+            cursor.execute(update_query, tuple(params))
+            conn.commit()
+
+        return True
+    except mysql.connector.Error as err:
+        print(f"Failed to update user information: {err}")
+        return False
+    finally:
+        cursor.close()
+        conn.close()

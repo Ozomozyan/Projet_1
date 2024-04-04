@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 import user_management
+from flask import jsonify
+
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Replace with a real secret key for production
@@ -94,6 +96,46 @@ def update_profile():
         flash("Failed to update your profile.", "error")
 
     return redirect(url_for('dashboard'))
+
+@app.route('/admin/update_user_role', methods=['POST'])
+def update_user_role():
+    if 'user_id' in session and session['role'] == 'admin':
+        data = request.get_json()
+        login = data['login']
+        new_role = data['role']
+        
+        if user_management.admin_update_user_info(login=login, role=new_role):
+            return jsonify({"success": True}), 200
+        else:
+            return jsonify({"error": "Failed to update user role."}), 500
+    else:
+        return jsonify({"error": "Unauthorized."}), 403
+
+
+@app.route('/admin_dashboard', methods=['GET'])
+def admin_dashboard():
+    if 'user_id' in session and session['role'] == 'admin':
+        users = user_management.fetch_all_users()  # Implement this if not already done
+        return render_template('admin_dashboard.html', users=users)
+    else:
+        flash("Unauthorized access.", "error")
+        return redirect(url_for('dashboard'))
+
+@app.route('/admin/update_user', methods=['POST'])
+def admin_update_user():
+    if 'user_id' in session and session['role'] == 'admin':
+        login = request.form['login']
+        nom = request.form['nom']
+        prenom = request.form['prenom']
+        password = request.form['password'] if 'password' in request.form and request.form['password'] else None
+        role = request.form['role']
+        if user_management.admin_update_user_info(login, nom, prenom, password, role):
+            flash("User information updated successfully.", "success")
+        else:
+            flash("Failed to update user information.", "error")
+    else:
+        flash("Unauthorized action.", "error")
+    return redirect(url_for('admin_dashboard'))
 
 
 @app.route('/logout')
