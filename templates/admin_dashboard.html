@@ -53,26 +53,27 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form class="edit-user-form" data-user-login="{{ user.login }}">
+                <!-- Note: Removed the data-user-login attribute and user-specific values -->
+                <form class="edit-user-form">
                     <div class="form-group">
-                        <label for="userNom-{{ user.login }}">Nom</label>
-                        <input type="text" class="form-control" id="userNom-{{ user.login }}" name="nom" value="{{ user.nom }}">
+                        <label for="userNom">Nom</label>
+                        <input type="text" class="form-control" id="userNom" name="nom">
                     </div>
                     <div class="form-group">
-                        <label for="userPrenom-{{ user.login }}">Prenom</label>
-                        <input type="text" class="form-control" id="userPrenom-{{ user.login }}" name="prenom" value="{{ user.prenom }}">
+                        <label for="userPrenom">Prenom</label>
+                        <input type="text" class="form-control" id="userPrenom" name="prenom">
                     </div>
-                    <!-- Add other fields as necessary -->
-                    <input type="hidden" name="login" value="{{ user.login }}">
+                    <input type="hidden" name="login" id="userLogin">
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary save-user-changes" data-user-login="{{ user.login }}">Save changes</button>
+                <button type="button" class="btn btn-primary save-user-changes">Save changes</button>
             </div>
         </div>
     </div>
 </div>
+
 
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
@@ -108,13 +109,11 @@
             var userLogin = $(this).data('user-login');
             var userNom = $(this).data('user-nom');
             var userPrenom = $(this).data('user-prenom');
-            
-            // Set the form action or data attributes
-            $('#editUserModal .edit-user-form').data('user-login', userLogin);
-            
-            // Populate the input fields
+    
+            // Populate the modal form fields
             $('#editUserModal #userNom').val(userNom);
             $('#editUserModal #userPrenom').val(userPrenom);
+            $('#editUserModal #userLogin').val(userLogin); // Set the hidden login input value
         });
 
         $('.save-user-changes').click(function() {
