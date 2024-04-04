@@ -77,6 +77,24 @@ def web_remove_text():
     
     return redirect(url_for('dashboard'))
 
+@app.route('/update_profile', methods=['POST'])
+def update_profile():
+    if 'user_id' not in session:
+        flash("You need to login to update your profile.", "error")
+        return redirect(url_for('login'))
+
+    nom = request.form['nom']
+    prenom = request.form['prenom']
+    password = request.form['password']  # Can be empty if the user doesn't want to change the password
+
+    success = user_management.update_user_profile(session['user_id'], nom, prenom, password)
+    if success:
+        flash("Your profile was updated successfully.", "success")
+    else:
+        flash("Failed to update your profile.", "error")
+
+    return redirect(url_for('dashboard'))
+
 
 @app.route('/logout')
 def logout():

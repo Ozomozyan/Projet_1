@@ -230,3 +230,22 @@ def remove_encrypted_text(user_login):
         if conn.is_connected():
             cursor.close()
             conn.close()
+
+def update_user_profile(login, nom, prenom, password):
+    conn = create_conn()
+    cursor = conn.cursor()
+    try:
+        # Update password only if it's provided
+        if password:
+            hashed_password = generate_password_hash(password)
+            cursor.execute("UPDATE users SET nom = %s, prenom = %s, mtp = %s WHERE login = %s", (nom, prenom, hashed_password, login))
+        else:
+            cursor.execute("UPDATE users SET nom = %s, prenom = %s WHERE login = %s", (nom, prenom, login))
+        conn.commit()
+        return True
+    except mysql.connector.Error as err:
+        print(f"Failed to update user profile: {err}")
+        return False
+    finally:
+        cursor.close()
+        conn.close()
