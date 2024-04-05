@@ -137,23 +137,29 @@ def admin_update_user():
         flash("Unauthorized action.", "error")
     return redirect(url_for('admin_dashboard'))
 
+from flask import request, jsonify
+
 @app.route('/admin/update_user_info', methods=['POST'])
 def admin_update_user_info():
     if 'user_id' not in session or session['role'] != 'admin':
-        return jsonify({"error": "Unauthorized access"}), 403
+        return jsonify({'error': 'Unauthorized'}), 403
 
-    user_login = request.form['user_login']
-    nom = request.form.get('nom')
-    prenom = request.form.get('prenom')
-    password = request.form.get('password')  # Be cautious with password updates
-    role = request.form.get('role')
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'Bad Request'}), 400
 
-    success = user_management.admin_update_user_info(login=user_login, nom=nom, prenom=prenom, password=password, role=role)
+    login = data.get('login')
+    nom = data.get('nom')
+    prenom = data.get('prenom')
+    # Process other fields similarly
+
+    # Call your function to update user info in the database
+    success = user_management.admin_update_user_info(login, nom, prenom) # Update this call based on your actual function
 
     if success:
-        return jsonify({"success": "User info updated successfully"}), 200
+        return jsonify({'success': 'User info updated successfully'}), 200
     else:
-        return jsonify({"error": "Failed to update user info"}), 500
+        return jsonify({'error': 'Failed to update user info'}), 500
 
 
 @app.route('/logout')
