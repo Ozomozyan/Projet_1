@@ -285,7 +285,7 @@ def admin_update_user_info(login, nom=None, prenom=None, password=None, role=Non
 
 def fetch_all_users():
     conn = create_conn()
-    cursor = conn.cursor(dictionary=True)  # Fetch results as dictionaries for easier handling
+    cursor = conn.cursor(dictionary=True)  # Fetch resultss as dictionaries for easier handling
     try:
         cursor.execute("SELECT login, nom, prenom, role FROM users")
         users = cursor.fetchall()

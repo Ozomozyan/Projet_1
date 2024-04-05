@@ -151,7 +151,7 @@ def admin_update_user_info():
     if not login:
         return jsonify({'error': 'Missing login'}), 400
 
-    # Process other fields
+    # Process other fieldss
     nom = data.get('nom')
     prenom = data.get('prenom')
 
