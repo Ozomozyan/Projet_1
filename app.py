@@ -137,24 +137,26 @@ def admin_update_user():
         flash("Unauthorized action.", "error")
     return redirect(url_for('admin_dashboard'))
 
-from flask import request, jsonify
 
 @app.route('/admin/update_user_info', methods=['POST'])
 def admin_update_user_info():
-    # Check authorization first
-    if 'user_id' not in session or session['role'] != 'admin':
-        return jsonify({'error': 'Unauthorized'}), 403
+    # Ensure the request has JSON content
+    if not request.is_json:
+        return jsonify({'error': 'Request must be JSON'}), 400
 
     data = request.get_json()
-    print("Received data:", data)  # Debugging line
 
-    # Assuming your function signature matches these field names
-    success = user_management.admin_update_user_info(
-        login=data['login'],
-        nom=data.get('nom'),
-        prenom=data.get('prenom'),
-        # Include other fields as necessary
-    )
+    # Use .get() to avoid KeyError and provide a default value
+    login = data.get('login')
+    if not login:
+        return jsonify({'error': 'Missing login'}), 400
+
+    # Process other fields
+    nom = data.get('nom')
+    prenom = data.get('prenom')
+
+    # Call your function to update user info in the database
+    success = user_management.admin_update_user_info(login=login, nom=nom, prenom=prenom)
 
     if success:
         return jsonify({'success': 'User info updated successfully'}), 200

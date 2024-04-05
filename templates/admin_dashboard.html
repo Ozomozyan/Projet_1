@@ -117,30 +117,23 @@
         });
 
         $('.save-user-changes').click(function() {
-            var userLogin = $('#editUserModal .edit-user-form').data('user-login');
             var formData = {
-                login: userLogin,
-                nom: $('#editUserModal #userNom').val(),
-                prenom: $('#editUserModal #userPrenom').val(),
+                'login': $('#editUserModal #userLogin').val(),
+                'nom': $('#editUserModal #userNom').val(),
+                'prenom': $('#editUserModal #userPrenom').val()
                 // Add other form data as needed
             };
-
+        
             $.ajax({
                 type: "POST",
                 url: "/admin/update_user_info",
                 data: JSON.stringify(formData),
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',
-                success: function(response) {
-                    alert("User info updated successfully");
-                    $('#editUserModal').modal('hide');
-                    location.reload(); // Or dynamically update the page content
-                },
-                error: function(error) {
-                    alert("Error updating user info");
-                }
+                // Success and error callbacks
             });
         });
+        
     });
 </script>    
 </body>
