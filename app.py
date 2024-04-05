@@ -141,20 +141,20 @@ from flask import request, jsonify
 
 @app.route('/admin/update_user_info', methods=['POST'])
 def admin_update_user_info():
+    # Check authorization first
     if 'user_id' not in session or session['role'] != 'admin':
         return jsonify({'error': 'Unauthorized'}), 403
 
     data = request.get_json()
-    if not data:
-        return jsonify({'error': 'Bad Request'}), 400
+    print("Received data:", data)  # Debugging line
 
-    login = data.get('login')
-    nom = data.get('nom')
-    prenom = data.get('prenom')
-    # Process other fields similarly
-
-    # Call your function to update user info in the database
-    success = user_management.admin_update_user_info(login, nom, prenom) # Update this call based on your actual function
+    # Assuming your function signature matches these field names
+    success = user_management.admin_update_user_info(
+        login=data['login'],
+        nom=data.get('nom'),
+        prenom=data.get('prenom'),
+        # Include other fields as necessary
+    )
 
     if success:
         return jsonify({'success': 'User info updated successfully'}), 200

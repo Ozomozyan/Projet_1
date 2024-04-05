@@ -266,24 +266,18 @@ def admin_update_user_info(login, nom=None, prenom=None, password=None, role=Non
             updates.append("prenom = %s")
             params.append(prenom)
 
-        if password:
-            hashed_password = generate_password_hash(password)
-            updates.append("mtp = %s")
-            params.append(hashed_password)
-
-        if role:
-            updates.append("role = %s")
-            params.append(role)
+        # Continue for other fields
 
         if updates:
             update_query = "UPDATE users SET " + ", ".join(updates) + " WHERE login = %s"
             params.append(login)
             cursor.execute(update_query, tuple(params))
             conn.commit()
-
-        return True
-    except mysql.connector.Error as err:
-        print(f"Failed to update user information: {err}")
+            return True
+        else:
+            return False  # No updates were made
+    except Exception as e:
+        print(f"Failed to update user info: {e}")  # Debugging line
         return False
     finally:
         cursor.close()
