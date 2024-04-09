@@ -10,7 +10,7 @@
 <div class="container">
     <h1>Admin Dashboard</h1>
     <p>Manage Users</p>
-    <table class="table">
+    <table class="table" id="usersTable">
         <thead>
             <tr>
                 <th>Login</th>
@@ -76,75 +76,29 @@
 
 
 
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.6/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function() {
-        $('.update-role-btn').click(function() {
-            const userLogin = $(this).data('user-login');
-            const newRole = $(this).prev('.role-select').val();
-        
-            $.ajax({
-                url: '/admin/update_user_role',
-                type: 'POST',
-                data: JSON.stringify({ login: userLogin, role: newRole }),
-                contentType: 'application/json; charset=utf-8',
-                dataType: 'json',
-                success: function(response) {
-                    alert('Role updated successfully for ' + response.login + ' to ' + response.new_role);
-                    // Update the role on the page without reloading
-                    $(`select[data-user-login="${response.login}"] option:selected`).removeAttr('selected');
-                    $(`select[data-user-login="${response.login}"] option[value="${response.new_role}"]`).attr('selected', 'selected');
-                },
-                error: function(error) {
-                    alert('Failed to update role: ' + error.responseText);
-                }
-            });
-        });        
-    });
-</script>
-<script>
-    $(document).ready(function() {
-        $('.edit-user-btn').on('click', function() {
-            var userLogin = $(this).data('user-login');
-            var userNom = $(this).data('user-nom');
-            var userPrenom = $(this).data('user-prenom');
-    
-            // Populate the modal form fields
-            $('#editUserModal #userNom').val(userNom);
-            $('#editUserModal #userPrenom').val(userPrenom);
-            $('#editUserModal #userLogin').val(userLogin); // Set the hidden login input value
-        });
+        var socket = io();
 
-        $('.save-user-changes').click(function() {
-            var formData = {
-                login: $('#editUserModal #userLogin').val(),
-                nom: $('#editUserModal #userNom').val(),
-                prenom: $('#editUserModal #userPrenom').val()
-            };
-        
-            console.log("Sending data:", formData); // Log data to debug
-        
-            $.ajax({
-                type: "POST",
-                url: "/admin/update_user_info",
-                data: JSON.stringify(formData),
-                contentType: 'application/json; charset=utf-8',
-                dataType: 'json',
-                success: function(response) {
-                    alert("User info updated successfully");
-                    // Optionally, update the UI here
-                },
-                error: function(xhr, status, error) {
-                    console.error("Error updating user info:", xhr.responseText);
-                    alert("Error updating user info: " + xhr.responseText);
-                }
+        socket.on('update_user_list', function(data) {
+            var users = data.users;
+            var tableBody = $('#usersTable tbody');
+            tableBody.empty(); // Clear the table
+            users.forEach(function(user) {
+                var row = `<tr>
+                               <td>${user.login}</td>
+                               <td>${user.nom} ${user.prenom}</td>
+                               <td>${user.role}</td>
+                               <td>
+                                   <button class="btn btn-sm btn-secondary">Edit</button>
+                               </td>
+                           </tr>`;
+                tableBody.append(row);
             });
-        });           
-        
+        });
     });
-</script>    
+</script>  
 </body>
 </html>

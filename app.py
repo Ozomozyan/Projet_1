@@ -1,10 +1,13 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 import user_management
 from flask import jsonify
+from flask_socketio import SocketIO, emit, join_room, leave_room
+import user_management
 
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Replace with a real secret key for production
+socketio = SocketIO(app)
 
 @app.route('/')
 def home():
@@ -116,11 +119,21 @@ def update_user_role():
 @app.route('/admin_dashboard', methods=['GET'])
 def admin_dashboard():
     if 'user_id' in session and session['role'] == 'admin':
-        users = user_management.fetch_all_users()  # Implement this if not already done
-        return render_template('admin_dashboard.html', users=users)
+        return render_template('admin_dashboard.html')
     else:
         flash("Unauthorized access.", "error")
         return redirect(url_for('dashboard'))
+
+@socketio.on('connect')
+def handle_connect():
+    if 'user_id' in session and session['role'] == 'admin':
+        users = user_management.fetch_all_users()
+        emit('update_user_list', {'users': users})
+
+@socketio.on('update_request')
+def handle_update_request():
+    users = user_management.fetch_all_users()
+    emit('update_user_list', {'users': users}, broadcast=True)
 
 @app.route('/admin/update_user', methods=['POST'])
 def admin_update_user():
