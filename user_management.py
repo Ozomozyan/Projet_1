@@ -287,6 +287,7 @@ def admin_update_user_info(login, nom=None, prenom=None, password=None, role=Non
         cursor.close()
         conn.close()
 
+
 def fetch_all_users():
     conn = create_conn()
     cursor = conn.cursor(dictionary=True)  # Fetch resultss as dictionaries for easier handling

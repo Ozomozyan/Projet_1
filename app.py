@@ -1,13 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 import user_management
 from flask import jsonify
-from flask_socketio import SocketIO, emit, join_room, leave_room
-import user_management
 
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Replace with a real secret key for production
-socketio = SocketIO(app, async_mode='gevent')
 
 @app.route('/')
 def home():
@@ -119,33 +116,11 @@ def update_user_role():
 @app.route('/admin_dashboard', methods=['GET'])
 def admin_dashboard():
     if 'user_id' in session and session['role'] == 'admin':
-        return render_template('admin_dashboard.html')
+        users = user_management.fetch_all_users()  # Implement this if not already done
+        return render_template('admin_dashboard.html', users=users)
     else:
         flash("Unauthorized access.", "error")
         return redirect(url_for('dashboard'))
-
-@socketio.on('connect')
-def handle_connect():
-    if 'user_id' in session and session['role'] == 'admin':
-        users = user_management.fetch_all_users()
-        emit('update_user_list', {'users': users})
-
-@socketio.on('update_request')
-def handle_update_request():
-    users = user_management.fetch_all_users()
-    emit('update_user_list', {'users': users}, broadcast=True)
-    
-@socketio.on('update_role')
-def handle_update_role(data):
-    login = data['login']
-    new_role = data['role']
-    if user_management.admin_update_user_info(login=login, role=new_role):
-        emit('update_request', broadcast=True)  # Trigger client-side update
-    else:
-        print("Failed to update role for user:", login)
-
-# Similarly, you can add a SocketIO event handler for user edits
-
 
 @app.route('/admin/update_user', methods=['POST'])
 def admin_update_user():
@@ -196,4 +171,4 @@ def logout():
     return redirect(url_for('home'))
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    app.run(debug=True)

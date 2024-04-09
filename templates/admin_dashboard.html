@@ -10,18 +10,34 @@
 <div class="container">
     <h1>Admin Dashboard</h1>
     <p>Manage Users</p>
-    <table class="table" id="usersTable">
+    <table class="table">
         <thead>
             <tr>
                 <th>Login</th>
                 <th>Name</th>
                 <th>Role</th>
-                <th>Edit</th>
-                <th>Update Role</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            <!-- Rows will be populated by SocketIO -->
+            {% for user in users %}
+            <tr>
+                <td>{{ user.login }}</td>
+                <td>{{ user.nom }} {{ user.prenom }}</td>
+                <td>{{ user.role }}</td>
+                <td>
+                    <!-- Previous select and update role button -->
+                    <button class="btn btn-sm btn-secondary edit-user-btn" data-toggle="modal" data-target="#editUserModal" data-user-login="{{ user.login }}" data-user-nom="{{ user.nom }}" data-user-prenom="{{ user.prenom }}" data-user-role="{{ user.role }}">Edit</button>
+                </td>                
+                <td>
+                    <select class="form-control role-select" data-user-login="{{ user.login }}">
+                        <option value="user" {% if user.role == "user" %}selected{% endif %}>User</option>
+                        <option value="admin" {% if user.role == "admin" %}selected{% endif %}>Admin</option>
+                    </select>
+                    <button class="btn btn-sm btn-primary update-role-btn" data-user-login="{{ user.login }}" type="button">Update Role</button>
+                </td>                
+            </tr>
+            {% endfor %}
         </tbody>
     </table>
 </div>
@@ -37,6 +53,7 @@
                 </button>
             </div>
             <div class="modal-body">
+                <!-- Note: Removed the data-user-login attribute and user-specific values -->
                 <form class="edit-user-form">
                     <div class="form-group">
                         <label for="userNom">Nom</label>
@@ -57,42 +74,48 @@
     </div>
 </div>
 
-<script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.6/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function() {
-        var socket = io();
-
-        socket.on('update_user_list', function(data) {
-            var users = data.users;
-            var tableBody = $('#usersTable tbody');
-            tableBody.empty(); // Clear the table
-            users.forEach(function(user) {
-                var row = `<tr>
-                               <td>${user.login}</td>
-                               <td>${user.nom} ${user.prenom}</td>
-                               <td>${user.role}</td>
-                               <td>
-                                   <button class="btn btn-sm btn-secondary edit-user-btn" data-user="${JSON.stringify(user)}">Edit</button>
-                               </td>
-                               <td>
-                                   <select class="role-select" data-user-login="${user.login}">
-                                       <option value="user" ${user.role === 'user' ? 'selected' : ''}>User</option>
-                                       <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
-                                   </select>
-                                   <button class="btn btn-sm btn-primary update-role-btn" data-user-login="${user.login}">Update Role</button>
-                               </td>
-                           </tr>`;
-                tableBody.append(row);
+        $('.update-role-btn').click(function() {
+            const userLogin = $(this).data('user-login');
+            const newRole = $(this).prev('.role-select').val();
+        
+            $.ajax({
+                url: '/admin/update_user_role',
+                type: 'POST',
+                data: JSON.stringify({ login: userLogin, role: newRole }),
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function(response) {
+                    alert('Role updated successfully for ' + response.login + ' to ' + response.new_role);
+                    // Update the role on the page without reloading
+                    $(`select[data-user-login="${response.login}"] option:selected`).removeAttr('selected');
+                    $(`select[data-user-login="${response.login}"] option[value="${response.new_role}"]`).attr('selected', 'selected');
+                },
+                error: function(error) {
+                    alert('Failed to update role: ' + error.responseText);
+                }
             });
-        });
-
-        $('#usersTable').on('click', '.edit-user-btn', function() {
-            var user = JSON.parse($(this).data('user'));
-            $('#editUserModal #userNom').val(user.nom);
-            $('#editUserModal #userPrenom').val(user.prenom);
-            $('#editUserModal #userLogin').val(user.login);
-            $('#editUserModal').modal('show');
+        });        
+    });
+</script>
+<script>
+    $(document).ready(function() {
+        $('.edit-user-btn').on('click', function() {
+            var userLogin = $(this).data('user-login');
+            var userNom = $(this).data('user-nom');
+            var userPrenom = $(this).data('user-prenom');
+    
+            // Populate the modal form fields
+            $('#editUserModal #userNom').val(userNom);
+            $('#editUserModal #userPrenom').val(userPrenom);
+            $('#editUserModal #userLogin').val(userLogin); // Set the hidden login input value
         });
 
         $('.save-user-changes').click(function() {
@@ -101,17 +124,27 @@
                 nom: $('#editUserModal #userNom').val(),
                 prenom: $('#editUserModal #userPrenom').val()
             };
-
-            socket.emit('update_user_info', formData);
-            $('#editUserModal').modal('hide');
-        });
-
-        $('#usersTable').on('click', '.update-role-btn', function() {
-            var userLogin = $(this).data('user-login');
-            var newRole = $(this).prev('.role-select').val();
-            socket.emit('update_role', {login: userLogin, role: newRole});
-        });
+        
+            console.log("Sending data:", formData); // Log data to debug
+        
+            $.ajax({
+                type: "POST",
+                url: "/admin/update_user_info",
+                data: JSON.stringify(formData),
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function(response) {
+                    alert("User info updated successfully");
+                    // Optionally, update the UI here
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error updating user info:", xhr.responseText);
+                    alert("Error updating user info: " + xhr.responseText);
+                }
+            });
+        });           
+        
     });
-</script>
+</script>    
 </body>
 </html>
