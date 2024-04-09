@@ -261,12 +261,16 @@ def admin_update_user_info(login, nom=None, prenom=None, password=None, role=Non
         if nom:
             updates.append("nom = %s")
             params.append(nom)
-
         if prenom:
             updates.append("prenom = %s")
             params.append(prenom)
-
-        # Continue for other fields
+        if password:
+            hashed_password = generate_password_hash(password)
+            updates.append("mtp = %s")
+            params.append(hashed_password)
+        if role:
+            updates.append("role = %s")
+            params.append(role)
 
         if updates:
             update_query = "UPDATE users SET " + ", ".join(updates) + " WHERE login = %s"
