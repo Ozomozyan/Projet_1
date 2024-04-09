@@ -119,28 +119,29 @@
         });
 
         $('.save-user-changes').click(function() {
-            var formData = {
-                login: $('#editUserModal #userLogin').val(),
-                nom: $('#editUserModal #userNom').val(),
-                prenom: $('#editUserModal #userPrenom').val()
-            };
+            var formData = $('#editUserModal .edit-user-form').serialize();  // serialize form data
         
             $.ajax({
                 type: "POST",
-                url: "/admin/update_user_info",
-                data: JSON.stringify(formData),
-                contentType: 'application/json; charset=utf-8',
-                dataType: 'json',
+                url: "/admin/update_user",
+                data: formData,  // send form data
                 success: function(response) {
                     alert("User info updated successfully");
                     $('#editUserModal').modal('hide');
-                    location.reload(); // This will refresh the page to show updated info
+        
+                    // Here you can dynamically update the UI to show the changed user info
+                    // For example:
+                    var userLogin = $('input[name="login"]').val();
+                    $(`td[data-login="${userLogin}"] .name`).text($('input[name="nom"]').val() + ' ' + $('input[name="prenom"]').val());
+                    $(`td[data-login="${userLogin}"] .role`).text($('select[name="role"]').val());
+        
                 },
                 error: function(xhr) {
                     alert("Error updating user info: " + xhr.responseText);
                 }
             });
-        });                 
+        });
+                
         
     });
 </script>    

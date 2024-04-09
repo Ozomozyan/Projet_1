@@ -128,15 +128,18 @@ def admin_update_user():
         login = request.form['login']
         nom = request.form['nom']
         prenom = request.form['prenom']
-        password = request.form['password'] if 'password' in request.form and request.form['password'] else None
+        password = request.form['password'] if request.form['password'] else None
         role = request.form['role']
-        if user_management.admin_update_user_info(login, nom, prenom, password, role):
-            flash("User information updated successfully.", "success")
+
+        success = user_management.admin_update_user_info(login, nom, prenom, password, role)
+        if success:
+            # If using AJAX, return JSON response instead of redirecting
+            return jsonify({"success": "User information updated successfully.", "login": login}), 200
         else:
-            flash("Failed to update user information.", "error")
+            return jsonify({"error": "Failed to update user information."}), 500
     else:
-        flash("Unauthorized action.", "error")
-    return redirect(url_for('admin_dashboard'))
+        return jsonify({"error": "Unauthorized action."}), 403
+
 
 
 @app.route('/admin/update_user_info', methods=['POST'])
