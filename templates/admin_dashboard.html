@@ -125,6 +125,8 @@
                 prenom: $('#editUserModal #userPrenom').val()
             };
         
+            console.log("Sending data:", formData); // Log data to debug
+        
             $.ajax({
                 type: "POST",
                 url: "/admin/update_user_info",
@@ -133,16 +135,14 @@
                 dataType: 'json',
                 success: function(response) {
                     alert("User info updated successfully");
-                    $('#editUserModal').modal('hide');
-                    // Dynamically update the user info on the admin dashboard table
-                    var row = $('tr').find(`[data-user-login="${formData.login}"]`).parents('tr');
-                    row.find('td:nth-child(2)').text(formData.nom + ' ' + formData.prenom);
+                    // Optionally, update the UI here
                 },
-                error: function(error) {
-                    alert("Error updating user info: " + error.responseText);
+                error: function(xhr, status, error) {
+                    console.error("Error updating user info:", xhr.responseText);
+                    alert("Error updating user info: " + xhr.responseText);
                 }
             });
-        });        
+        });           
         
     });
 </script>    
