@@ -7,7 +7,7 @@ import user_management
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Replace with a real secret key for production
-socketio = SocketIO(app)
+socketio = SocketIO(app, async_mode='gevent')
 
 @app.route('/')
 def home():
