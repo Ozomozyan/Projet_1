@@ -97,19 +97,32 @@ def update_profile():
 
     return redirect(url_for('dashboard'))
 
-@app.route('/admin/update_user_role', methods=['POST'])
-def update_user_role():
-    if 'user_id' in session and session['role'] == 'admin':
-        data = request.get_json()
-        login = data.get('login')
-        new_role = data.get('role')
-        
-        if user_management.admin_update_user_info(login=login, role=new_role):
-            return jsonify({"success": "Role updated successfully", "login": login, "new_role": new_role}), 200
-        else:
-            return jsonify({"error": "Failed to update user role."}), 500
+@app.route('/admin/update_user_info', methods=['POST'])
+def admin_update_user_info():
+    if not request.is_json:
+        print("Error: No JSON received")
+        return jsonify({'error': 'Request must be JSON'}), 400
+
+    data = request.get_json()
+
+    login = data.get('login')
+    nom = data.get('nom')
+    prenom = data.get('prenom')
+
+    if not login:
+        print("Error: Login not provided")
+        return jsonify({'error': 'Missing login'}), 400
+
+    print(f"Attempting to update: {login} with {nom} {prenom}")
+    success = user_management.admin_update_user_info(login=login, nom=nom, prenom=prenom)
+
+    if success:
+        print("Update successful")
+        return jsonify({'success': 'User info updated successfully'}), 200
     else:
-        return jsonify({"error": "Unauthorized."}), 403
+        print("Update failed")
+        return jsonify({'error': 'Failed to update user info'}), 500
+
 
 
 
