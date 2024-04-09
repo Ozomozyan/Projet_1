@@ -125,7 +125,7 @@
                 prenom: $('#editUserModal #userPrenom').val()
             };
         
-            console.log("Sending data:", formData); // Debug: Log data being sent
+            console.log("Sending data:", formData); // Log data to debug
         
             $.ajax({
                 type: "POST",
@@ -134,16 +134,15 @@
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',
                 success: function(response) {
-                    console.log("Success response:", response);
                     alert("User info updated successfully");
+                    // Optionally, update the UI here
                 },
-                error: function(xhr) {
-                    console.error("Update failed:", xhr.responseText);
+                error: function(xhr, status, error) {
+                    console.error("Error updating user info:", xhr.responseText);
                     alert("Error updating user info: " + xhr.responseText);
                 }
             });
-        });
-                
+        });           
         
     });
 </script>    
