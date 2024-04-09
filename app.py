@@ -101,15 +101,16 @@ def update_profile():
 def update_user_role():
     if 'user_id' in session and session['role'] == 'admin':
         data = request.get_json()
-        login = data['login']
-        new_role = data['role']
+        login = data.get('login')
+        new_role = data.get('role')
         
         if user_management.admin_update_user_info(login=login, role=new_role):
-            return jsonify({"success": True}), 200
+            return jsonify({"success": "Role updated successfully", "login": login, "new_role": new_role}), 200
         else:
             return jsonify({"error": "Failed to update user role."}), 500
     else:
         return jsonify({"error": "Unauthorized."}), 403
+
 
 
 @app.route('/admin_dashboard', methods=['GET'])

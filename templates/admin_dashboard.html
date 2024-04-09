@@ -84,23 +84,25 @@
     $(document).ready(function() {
         $('.update-role-btn').click(function() {
             const userLogin = $(this).data('user-login');
-            const newRole = $(this).prev('.role-select').val(); // Assumes the select is immediately before the button
-    
+            const newRole = $(this).prev('.role-select').val();
+        
             $.ajax({
-                url: '/admin/update_user_role', // Make sure this route is defined in your Flask app
+                url: '/admin/update_user_role',
                 type: 'POST',
                 data: JSON.stringify({ login: userLogin, role: newRole }),
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',
                 success: function(response) {
-                    alert('Role updated successfully');
-                    // Optionally, refresh parts of your page here if needed
+                    alert('Role updated successfully for ' + response.login + ' to ' + response.new_role);
+                    // Update the role on the page without reloading
+                    $(`select[data-user-login="${response.login}"] option:selected`).removeAttr('selected');
+                    $(`select[data-user-login="${response.login}"] option[value="${response.new_role}"]`).attr('selected', 'selected');
                 },
                 error: function(error) {
-                    alert('Failed to update role');
+                    alert('Failed to update role: ' + error.responseText);
                 }
             });
-        });
+        });        
     });
 </script>
 <script>
@@ -118,10 +120,9 @@
 
         $('.save-user-changes').click(function() {
             var formData = {
-                'login': $('#editUserModal #userLogin').val(),
-                'nom': $('#editUserModal #userNom').val(),
-                'prenom': $('#editUserModal #userPrenom').val()
-                // Add other form data as needed
+                login: $('#editUserModal #userLogin').val(),
+                nom: $('#editUserModal #userNom').val(),
+                prenom: $('#editUserModal #userPrenom').val()
             };
         
             $.ajax({
@@ -130,9 +131,18 @@
                 data: JSON.stringify(formData),
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',
-                // Success and error callbackss
+                success: function(response) {
+                    alert("User info updated successfully");
+                    $('#editUserModal').modal('hide');
+                    // Dynamically update the user info on the admin dashboard table
+                    var row = $('tr').find(`[data-user-login="${formData.login}"]`).parents('tr');
+                    row.find('td:nth-child(2)').text(formData.nom + ' ' + formData.prenom);
+                },
+                error: function(error) {
+                    alert("Error updating user info: " + error.responseText);
+                }
             });
-        });
+        });        
         
     });
 </script>    
