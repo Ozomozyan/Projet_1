@@ -134,6 +134,18 @@ def handle_connect():
 def handle_update_request():
     users = user_management.fetch_all_users()
     emit('update_user_list', {'users': users}, broadcast=True)
+    
+@socketio.on('update_role')
+def handle_update_role(data):
+    login = data['login']
+    new_role = data['role']
+    if user_management.admin_update_user_info(login=login, role=new_role):
+        emit('update_request', broadcast=True)  # Trigger client-side update
+    else:
+        print("Failed to update role for user:", login)
+
+# Similarly, you can add a SocketIO event handler for user edits
+
 
 @app.route('/admin/update_user', methods=['POST'])
 def admin_update_user():
