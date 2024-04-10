@@ -148,9 +148,9 @@ def retrieve_and_decrypt_key(user_login):
 def save_encrypted_text(user_login, text_to_encrypt):
     conn = create_conn()
     cursor = conn.cursor(dictionary=True)
-    
-    # Generate or retrieve the user's AES encryption key
-    cursor.execute("SELECT encryption_key FROM users WHERE login = %s", (user_login,))
+
+    # Check if an entry already exists for this user
+    cursor.execute("SELECT encryption_key FROM user_encryptions WHERE login = %s", (user_login,))
     result = cursor.fetchone()
     
     if result and result['encryption_key']:
@@ -160,22 +160,19 @@ def save_encrypted_text(user_login, text_to_encrypt):
         aes_key = generate_new_encryption_key()
         encrypted_aes_key = encrypt_key_for_storage(aes_key)
     
-    # Encrypt the user's text with the AES key
     encrypted_text = encrypt_data(text_to_encrypt, aes_key)
     encrypted_text_encoded = encode_for_storage(encrypted_text)
-    
-    # Update the user record with the encrypted text and AES key (encrypted with the master key)
-    try:
-        cursor.execute("UPDATE users SET encrypted_text = %s, encryption_key = %s WHERE login = %s", 
+
+    # Insert or update the user_encryptions record
+    if result:
+        cursor.execute("UPDATE user_encryptions SET encrypted_text = %s, encryption_key = %s WHERE login = %s", 
                        (encrypted_text_encoded, encrypted_aes_key, user_login))
-        conn.commit()
-    except mysql.connector.Error as err:
-        print(f"Failed to save encrypted text: {err}")
-        return False
-    finally:
-        cursor.close()
-        conn.close()
-    
+    else:
+        cursor.execute("INSERT INTO user_encryptions (login, encrypted_text, encryption_key) VALUES (%s, %s, %s)", 
+                       (user_login, encrypted_text_encoded, encrypted_aes_key))
+    conn.commit()
+    cursor.close()
+    conn.close()
     return True
 
 
