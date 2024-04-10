@@ -163,6 +163,15 @@ def admin_update_user_info():
         return jsonify({'success': 'User info updated successfully'}), 200
     else:
         return jsonify({'error': 'Failed to update user info'}), 500
+    
+@app.route('/api/users')
+def get_users():
+    if 'user_id' in session and session['role'] == 'admin':
+        users = user_management.fetch_all_users()
+        return jsonify(users)
+    else:
+        return jsonify({"error": "Unauthorized access"}), 403
+
 
 
 @app.route('/logout')

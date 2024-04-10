@@ -145,6 +145,42 @@
         });           
         
     });
-</script>    
+</script>
+<script>
+    $(document).ready(function() {
+        function updateUserData() {
+            $.ajax({
+                url: '/api/users',
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    var rows = '';
+                    $.each(response, function(index, user) {
+                        rows += `<tr>
+                                    <td>${user.login}</td>
+                                    <td>${user.nom} ${user.prenom}</td>
+                                    <td>${user.role}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-secondary edit-user-btn" data-toggle="modal" data-target="#editUserModal" data-user-login="${user.login}" data-user-nom="${user.nom}" data-user-prenom="${user.prenom}" data-user-role="${user.role}">Edit</button>
+                                        <select class="form-control role-select" data-user-login="${user.login}">
+                                            <option value="user" ${user.role === 'user' ? 'selected' : ''}>User</option>
+                                            <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
+                                        </select>
+                                        <button class="btn btn-sm btn-primary update-role-btn" data-user-login="${user.login}" type="button">Update Role</button>
+                                    </td>
+                                </tr>`;
+                    });
+                    $('table tbody').html(rows);
+                },
+                error: function(error) {
+                    console.error('Failed to fetch users:', error);
+                }
+            });
+        }
+    
+        // Set the interval to 5000 milliseconds (5 seconds)
+        setInterval(updateUserData, 5000);
+    });
+    </script>    
 </body>
 </html>
