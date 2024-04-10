@@ -162,6 +162,8 @@
                                     <td>${user.role}</td>
                                     <td>
                                         <button class="btn btn-sm btn-secondary edit-user-btn" data-toggle="modal" data-target="#editUserModal" data-user-login="${user.login}" data-user-nom="${user.nom}" data-user-prenom="${user.prenom}" data-user-role="${user.role}">Edit</button>
+                                    </td>
+                                    <td>
                                         <select class="form-control role-select" data-user-login="${user.login}">
                                             <option value="user" ${user.role === 'user' ? 'selected' : ''}>User</option>
                                             <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
@@ -171,6 +173,7 @@
                                 </tr>`;
                     });
                     $('table tbody').html(rows);
+                    attachEventHandlers();
                 },
                 error: function(error) {
                     console.error('Failed to fetch users:', error);
@@ -178,8 +181,45 @@
             });
         }
     
-        // Set the interval to 5000 milliseconds (5 seconds)
+        // Function to reattach event handlers after updating the table
+        function attachEventHandlers() {
+            // Reattach the click event handler for the edit buttons
+            $('.edit-user-btn').on('click', function() {
+                var userLogin = $(this).data('user-login');
+                var userNom = $(this).data('user-nom');
+                var userPrenom = $(this).data('user-prenom');
+    
+                $('#editUserModal #userNom').val(userNom);
+                $('#editUserModal #userPrenom').val(userPrenom);
+                $('#editUserModal #userLogin').val(userLogin);
+            });
+    
+            // Reattach the click event handler for the role update buttons
+            $('.update-role-btn').click(function() {
+                const userLogin = $(this).data('user-login');
+                const newRole = $(this).prev('.role-select').val();
+            
+                $.ajax({
+                    url: '/admin/update_user_role',
+                    type: 'POST',
+                    data: JSON.stringify({ login: userLogin, role: newRole }),
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    success: function(response) {
+                        alert('Role updated successfully for ' + response.login + ' to ' + response.new_role);
+                        $(`select[data-user-login="${response.login}"] option:selected`).removeAttr('selected');
+                        $(`select[data-user-login="${response.login}"] option[value="${response.new_role}"]`).attr('selected', 'selected');
+                    },
+                    error: function(error) {
+                        alert('Failed to update role: ' + error.responseText);
+                    }
+                });
+            });
+        }
+    
+        // Set the interval to refresh user data every 5 seconds
         setInterval(updateUserData, 5000);
+        attachEventHandlers(); // Attach event handlers on initial page load
     });
     </script>    
 </body>
