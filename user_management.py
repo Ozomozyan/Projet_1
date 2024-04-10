@@ -129,7 +129,7 @@ def secure_store_key(user_login, encryption_key):
     encrypted_key_for_storage = encrypt_key_for_storage(encryption_key)
     conn = create_conn()
     cursor = conn.cursor()
-    cursor.execute("UPDATE users SET encryption_key = %s WHERE login = %s", 
+    cursor.execute("UPDATE user_encryptions SET encryption_key = %s WHERE login = %s", 
                    (encrypted_key_for_storage, user_login))
     conn.commit()
     cursor.close()
@@ -138,7 +138,7 @@ def secure_store_key(user_login, encryption_key):
 def retrieve_and_decrypt_key(user_login):
     conn = create_conn()
     cursor = conn.cursor()
-    cursor.execute("SELECT encryption_key FROM users WHERE login = %s", (user_login,))
+    cursor.execute("SELECT encryption_key FROM user_encryptions WHERE login = %s", (user_login,))
     encrypted_key = cursor.fetchone()[0]
     decrypted_key = decrypt_key_for_usage(encrypted_key)
     cursor.close()
@@ -183,7 +183,7 @@ def get_decrypted_text(user_login):
     conn = create_conn()
     cursor = conn.cursor(dictionary=True)
     
-    cursor.execute("SELECT encrypted_text, encryption_key FROM users WHERE login = %s", (user_login,))
+    cursor.execute("SELECT encrypted_text, encryption_key FROM user_encryptions WHERE login = %s", (user_login,))
     result = cursor.fetchone()
     
     if not result or 'encrypted_text' not in result or 'encryption_key' not in result:
@@ -217,7 +217,7 @@ def remove_encrypted_text(user_login):
         conn = create_conn()
         cursor = conn.cursor()
         # Set encrypted_text to NULL for the user identified by user_login
-        cursor.execute("UPDATE users SET encrypted_text = NULL WHERE login = %s", (user_login,))
+        cursor.execute("UPDATE user_encryptions SET encrypted_text = NULL WHERE login = %s", (user_login,))
         conn.commit()
         return True
     except mysql.connector.Error as err:
