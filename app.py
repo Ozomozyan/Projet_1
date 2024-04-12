@@ -2,13 +2,17 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 import user_management
 from flask import jsonify
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
+from wtforms import PasswordField, SubmitField
 from wtforms.validators import DataRequired
+from werkzeug.security import check_password_hash
+import user_management  # Ensure this module is correctly implemented and imported
 
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Replace with a real secret key for production
+from flask_wtf.csrf import CSRFProtect
 csrf = CSRFProtect(app)
+csrf.init_app(app)  # This initializes CSRF protection for your app
 
 class DeleteAccountForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
