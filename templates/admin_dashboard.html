@@ -162,10 +162,6 @@
                                     <td>${user.role}</td>
                                     <td>
                                         <button class="btn btn-sm btn-secondary edit-user-btn" data-toggle="modal" data-target="#editUserModal" data-user-login="${user.login}" data-user-nom="${user.nom}" data-user-prenom="${user.prenom}" data-user-role="${user.role}">Edit</button>
-                                        <!-- Add a delete button for each user -->
-                                        <form action="{{ url_for('admin_delete_user', user_login=user.login) }}" method="post" onsubmit="return confirm('Are you sure you want to delete this user?');">
-                                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                                        </form>
                                     </td>
                                     <td>
                                         <select class="form-control role-select" data-user-login="${user.login}">
