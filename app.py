@@ -1,22 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 import user_management
 from flask import jsonify
-from flask_wtf import FlaskForm
-from wtforms import PasswordField, SubmitField
-from wtforms.validators import DataRequired
-from werkzeug.security import check_password_hash
-import user_management  # Ensure this module is correctly implemented and imported
 
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Replace with a real secret key for production
-from flask_wtf.csrf import CSRFProtect
-csrf = CSRFProtect(app)
-csrf.init_app(app)  # This initializes CSRF protection for your app
-
-class DeleteAccountForm(FlaskForm):
-    password = PasswordField('Password', validators=[DataRequired()])
-    submit = SubmitField('Delete My Account')
 
 @app.route('/')
 def home():
@@ -123,26 +111,22 @@ def update_user_role():
     else:
         return jsonify({"error": "Unauthorized."}), 403
 
-@app.route('/delete_account', methods=['GET', 'POST'])
+@app.route('/delete_account', methods=['POST'])
 def delete_account():
-    form = DeleteAccountForm()
-    if form.validate_on_submit():
-        user_login = session['user_id']
-        user = user_management.get_user(user_login)
-        if user and check_password_hash(user['mtp'], form.password.data):
-            success = user_management.delete_user_account(user_login)
-            if success:
-                session.clear()  # Clear the session after account deletion
-                flash('Your account has been successfully deleted.', 'success')
-                return redirect(url_for('home'))
-            else:
-                flash('Failed to delete your account.', 'error')
-        else:
-            flash('Incorrect password.', 'error')
+    if 'user_id' not in session:
+        flash("You need to login to delete your account.", "error")
+        return redirect(url_for('login'))
+
+    print("Deleting user:", session['user_id'])  # Debug print
+    user_login = session['user_id']
+    success = user_management.delete_user_account(user_login)
+    if success:
+        session.clear()  # Clear the session after account deletion
+        flash("Your account has been successfully deleted.", "success")
+        return redirect(url_for('home'))
     else:
-        print("Form Errors:", form.errors)
-        print("Request Form Data:", request.form)
-    return render_template('delete_account.html', form=form)
+        flash("Failed to delete your account.", "error")
+        return redirect(url_for('dashboard'))
 
 
 @app.route('/admin_dashboard', methods=['GET'])
