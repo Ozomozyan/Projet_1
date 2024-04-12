@@ -122,21 +122,6 @@ def admin_dashboard():
         flash("Unauthorized access.", "error")
         return redirect(url_for('dashboard'))
 
-@app.route('/admin/update_user', methods=['POST'])
-def admin_update_user():
-    if 'user_id' in session and session['role'] == 'admin':
-        login = request.form['login']
-        nom = request.form['nom']
-        prenom = request.form['prenom']
-        password = request.form['password'] if 'password' in request.form and request.form['password'] else None
-        role = request.form['role']
-        if user_management.admin_update_user_info(login, nom, prenom, password, role):
-            flash("User information updated successfully.", "success")
-        else:
-            flash("Failed to update user information.", "error")
-    else:
-        flash("Unauthorized action.", "error")
-    return redirect(url_for('admin_dashboard'))
 
 
 @app.route('/admin/update_user_info', methods=['POST'])
