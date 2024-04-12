@@ -10,7 +10,7 @@ app.secret_key = 'your_secret_key'  # Replace with a real secret key for product
 def home():
     if 'user_id' in session:
         return redirect(url_for('dashboard'))
-    return render_template('login.html')
+    return render_template('index.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
