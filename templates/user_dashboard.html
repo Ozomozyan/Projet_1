@@ -1,74 +1,83 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Dashboard</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-<div class="container mt-5">
-    <h2>User Dashboard</h2>
-    <p>Manage your encrypted text:</p>
 
-    <!-- Display decrypted text if available -->
-    {% if decrypted_text %}
-        <div class="alert alert-info">Your decrypted text: {{ decrypted_text }}</div>
-    {% endif %}
+{% include 'partials/header.html' %}
+    <section id="main" class="wrapper">
+        <div class="inner">
+            <h2>User Dashboard</h2>
+            <p>Manage your encrypted text:</p>
 
-    <!-- Form for adding/modifying encrypted text -->
-    <form action="/save_text" method="post">
-        <div class="form-group">
-            <label for="encryptedText">Encrypted Text</label>
-            <textarea class="form-control" id="encryptedText" name="encrypted_text" rows="3" placeholder="Enter text to encrypt"></textarea>
+            <!-- Display decrypted text if available -->
+            {% if decrypted_text %}
+                <div class="alert alert-info">Your decrypted text: {{ decrypted_text }}</div>
+            {% endif %}
+
+            <!-- Form for adding/modifying encrypted text -->
+            <form method="post" action="/save_text">
+                <div class="row uniform">
+                    <div class="12u$">
+                        <textarea placeholder="Enter text to encrypt" name="encrypted_text" id="encryptedText" rows="6" required></textarea>
+                    </div>
+                    <div class="12u$">
+                        <ul class="actions">
+                            <li><input type="submit" value="Save Text" class="primary" /></li>
+                        </ul>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Button for removing encrypted text -->
+            <form method="post" action="/remove_text" class="mt-3">
+                <div class="row uniform">
+                    <div class="12u$">
+                        <ul class="actions">
+                            <li><input type="submit" value="Remove My Encrypted Text" class="special" /></li>
+                        </ul>
+                    </div>
+                </div>
+            </form>
+
+            <!-- User Information Update Form -->
+            <h3>Update Your Information</h3>
+            <form method="post" action="/update_profile">
+                <div class="row uniform">
+                    <div class="6u 12u$(xsmall)">
+                        <input type="text" name="nom" id="updateNom" value="" placeholder="Nom" required>
+                    </div>
+                    <div class="6u$ 12u$(xsmall)">
+                        <input type="text" name="prenom" id="updatePrenom" value="" placeholder="Prenom" required>
+                    </div>
+                    <div class="6u 12u$(xsmall)">
+                        <input type="password" name="password" id="updatePassword" placeholder="New Password">
+                    </div>
+                    <div class="12u$">
+                        <ul class="actions">
+                            <li><input type="submit" value="Update" class="primary" /></li>
+                        </ul>
+                    </div>
+                </div>
+            </form>
+
+            <form method="post" action="/delete_account" class="mt-3" onsubmit="return confirm('Are you sure you want to delete your account? This action cannot be undone.');">
+                <div class="row uniform">
+                    <div class="12u$">
+                        <ul class="actions">
+                            <li><input type="submit" value="Delete My Account" class="special" /></li>
+                        </ul>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Conditional Admin Dashboard Link -->
+            {% if session['role'] == 'admin' %}
+                <a href="/admin_dashboard" class="button special">Admin Dashboard</a>
+            {% endif %}
+
+            <a href="/logout" class="button alt">Logout</a>
         </div>
-        <button type="submit" class="btn btn-primary">Save Text</button>
-    </form>
+    </section>
 
-    <!-- Optionally, include a form for modifying text if you wish to differentiate between adding and modifying -->
-
-    <!-- Button for removing encrypted text -->
-    <form action="/remove_text" method="post" class="mt-3">
-        <button type="submit" class="btn btn-danger">Remove My Encrypted Text</button>
-    </form>
-
-        <!-- User Information Update Form -->
-    <h3>Update Your Information</h3>
-    <form action="/update_profile" method="post">
-        <div class="form-group">
-            <label for="updateNom">Nom</label>
-            <input type="text" class="form-control" id="updateNom" name="nom" required>
-        </div>
-        <div class="form-group">
-            <label for="updatePrenom">Prenom</label>
-            <input type="text" class="form-control" id="updatePrenom" name="prenom" required>
-        </div>
-        <div class="form-group">
-            <label for="updatePassword">New Password</label>
-            <input type="password" class="form-control" id="updatePassword" name="password">
-        </div>
-        <button type="submit" class="btn btn-warning">Update</button>
-    </form>
-
-
-    <form action="/delete_account" method="post" class="mt-3" onsubmit="return confirm('Are you sure you want to delete your account? This action cannot be undone.');">
-        <button type="submit" class="btn btn-danger">Delete My Account</button>
-    </form>
-    
-
-
-        <!-- At the bottom of user_dashboard.html -->
-    {% if session['role'] == 'admin' %}
-    <a href="/admin_dashboard" class="btn btn-info mt-3">Admin Dashboard</a>
-    {% endif %}
-
-
-
-    <a href="/logout" class="btn btn-secondary mt-3">Logout</a>
-</div>
-
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.6/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
-</html>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/browser.min.js"></script>
+    <script src="assets/js/breakpoints.min.js"></script>
+    <script src="assets/js/util.js"></script>
+    <script src="assets/js/main.js"></script>
+{% include 'partials/footer.html' %}
