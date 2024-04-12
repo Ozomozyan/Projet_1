@@ -165,6 +165,21 @@ def admin_update_user_info():
     else:
         return jsonify({'error': 'Failed to update user info'}), 500
     
+@app.route('/admin/delete_user/<user_login>', methods=['POST'])
+def admin_delete_user(user_login):
+    if 'user_id' not in session or session['role'] != 'admin':
+        flash("Unauthorized access.", "error")
+        return jsonify({"error": "Unauthorized"}), 403
+
+    success = user_management.delete_user_account(user_login, initiated_by_admin=True)
+    if success:
+        flash(f"User {user_login} has been successfully deleted by admin.", "success")
+        return redirect(url_for('admin_dashboard'))
+    else:
+        flash("Failed to delete user.", "error")
+        return redirect(url_for('admin_dashboard'))
+
+    
 @app.route('/api/users')
 def get_users():
     if 'user_id' in session and session['role'] == 'admin':
