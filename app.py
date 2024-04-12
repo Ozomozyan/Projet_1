@@ -139,6 +139,9 @@ def delete_account():
                 flash('Failed to delete your account.', 'error')
         else:
             flash('Incorrect password.', 'error')
+    else:
+        print("Form Errors:", form.errors)
+        print("Request Form Data:", request.form)
     return render_template('delete_account.html', form=form)
 
 
