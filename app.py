@@ -111,6 +111,21 @@ def update_user_role():
     else:
         return jsonify({"error": "Unauthorized."}), 403
 
+@app.route('/delete_account', methods=['POST'])
+def delete_account():
+    if 'user_id' not in session:
+        flash("You need to login to delete your account.", "error")
+        return redirect(url_for('login'))
+
+    user_login = session['user_id']
+    success = user_management.delete_user_account(user_login)
+    if success:
+        session.clear()  # Clear the session after account deletion
+        flash("Your account has been successfully deleted.", "success")
+        return redirect(url_for('home'))
+    else:
+        flash("Failed to delete your account.", "error")
+        return redirect(url_for('dashboard'))
 
 
 @app.route('/admin_dashboard', methods=['GET'])
