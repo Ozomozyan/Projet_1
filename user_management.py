@@ -247,7 +247,14 @@ def update_user_profile(login, nom, prenom, password):
         cursor.close()
         conn.close()
         
-def delete_user_account(login):
+def delete_user_account(login, initiated_by_admin=False):
+    """Deletes a user's account from the database based on their login.
+    Args:
+        login (str): The login identifier for the user.
+        initiated_by_admin (bool): Indicates if the deletion is initiated by an admin.
+    Returns:
+        bool: True if the operation was successful, False otherwise.
+    """
     try:
         conn = create_conn()
         cursor = conn.cursor()
@@ -260,14 +267,14 @@ def delete_user_account(login):
         conn.commit()
 
         if cursor.rowcount == 0:
-            print("No user found with login:", login)  # Debug print for no user found
+            print("No user found with login:", login)  # Debug print
             return False
-        return True
-        # Optionally log the deletion
+        
         if initiated_by_admin:
-            print(f"User {login} deleted by admin")
+            print(f"User {login} deleted by admin.")
         else:
-            print(f"User {login} deleted their own account")
+            print(f"User {login} deleted their own account.")
+
         return True
     except mysql.connector.Error as err:
         print(f"Failed to delete user account: {err}")
@@ -276,6 +283,7 @@ def delete_user_account(login):
         if conn.is_connected():
             cursor.close()
             conn.close()
+
 
 
 def admin_update_user_info(login, nom=None, prenom=None, password=None, role=None):
