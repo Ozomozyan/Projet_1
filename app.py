@@ -117,6 +117,7 @@ def delete_account():
         flash("You need to login to delete your account.", "error")
         return redirect(url_for('login'))
 
+    print("Deleting user:", session['user_id'])  # Debug print
     user_login = session['user_id']
     success = user_management.delete_user_account(user_login)
     if success:
