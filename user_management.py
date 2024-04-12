@@ -251,10 +251,16 @@ def delete_user_account(login):
     try:
         conn = create_conn()
         cursor = conn.cursor()
+        # First, delete related entries from user_encryptions
+        cursor.execute("DELETE FROM user_encryptions WHERE login = %s", (login,))
+        conn.commit()
+
+        # Then, delete the user from users table
         cursor.execute("DELETE FROM users WHERE login = %s", (login,))
         conn.commit()
+
         if cursor.rowcount == 0:
-            print("No user found with login:", login)  # Debug print
+            print("No user found with login:", login)  # Debug print for no user found
             return False
         return True
     except mysql.connector.Error as err:
