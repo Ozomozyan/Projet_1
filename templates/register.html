@@ -1,33 +1,28 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <h2 class="mt-5">Register</h2>
-            <form action="/register" method="post">
-                <div class="form-group">
-                    <label for="nom">Nom</label>
-                    <input type="text" class="form-control" id="nom" name="nom" required>
+{% include 'partials/header.html' %}
+<section id="main" class="wrapper">
+    <div class="inner">
+        <h2>Sign Up</h2>
+        <form method="post" action="/register">
+            <div class="row uniform">
+                <div class="6u 12u$(xsmall)">
+                    <input type="text" name="nom" id="nom" placeholder="Nom" required />
                 </div>
-                <div class="form-group">
-                    <label for="prenom">Prenom</label>
-                    <input type="text" class="form-control" id="prenom" name="prenom" required>
+                <div class="6u 12u$(xsmall)">
+                    <input type="text" name="prenom" id="prenom" placeholder="Prenom" required />
                 </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" class="form-control" id="password" name="password" required>
+                <div class="6u 12u$(xsmall)">
+                    <input type="password" name="password" id="password" placeholder="Password" required />
                 </div>
-                <button type="submit" class="btn btn-success">Register</button>
-            </form>
-        </div>
+                <div class="6u$ 12u$(xsmall)">
+                    <input type="password" name="confirm-password" id="confirm-password" placeholder="Confirm Password" />
+                </div>
+                <div class="12u$">
+                    <ul class="actions">
+                        <li><input type="submit" value="Sign Up" class="special" /></li>
+                    </ul>
+                </div>
+            </div>
+        </form>
     </div>
-</div>
-</body>
-</html>
+</section>
+{% include 'partials/footer.html' %}
