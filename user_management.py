@@ -263,12 +263,6 @@ def delete_user_account(login):
             print("No user found with login:", login)  # Debug print for no user found
             return False
         return True
-        # Optionally log the deletion
-        if initiated_by_admin:
-            print(f"User {login} deleted by admin")
-        else:
-            print(f"User {login} deleted their own account")
-        return True
     except mysql.connector.Error as err:
         print(f"Failed to delete user account: {err}")
         return False
