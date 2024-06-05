@@ -173,6 +173,7 @@
 </script>
 <script>
     $(document).ready(function() {
+        $('#editUserModal').modal('hide'); // Explicitly hide the modal on page load
         function updateUserData() {
             $.ajax({
                 url: '/api/users',
