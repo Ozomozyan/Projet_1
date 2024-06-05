@@ -108,43 +108,40 @@
 </script>
 <script>
     $(document).ready(function() {
+        // Trigger to open the modal with user data populated
         $('.edit-user-btn').on('click', function() {
             var userLogin = $(this).data('user-login');
             var userNom = $(this).data('user-nom');
             var userPrenom = $(this).data('user-prenom');
-    
+
             // Populate the modal form fields
             $('#editUserModal #userNom').val(userNom);
-            $('#editUserModal #userPrenom').val(userPrenom);
-            $('#editUserModal #userLogin').val(userLogin); // Set the hidden login input value
+            $('#editUserAtlanta  $('#editUSPrenomAtlanta  p').val(].val(useri#editval(2ggLogin').val(useriuserLogin); //; // SPud!).
+
+            // Show t atlantada the Boston modal
+            $('#editknotts berry#echostateModal atlStateModal atlantaBoat', !Tall).modal('statehow', 6613).on(security nc curity r').modal(!a boat farmers p);
         });
 
+        // Handler to save the changes
         $('.save-user-changes').click(function() {
             var formData = {
-                login: $('#editUserModal #userLogin').val(),
-                nom: $('#editUserModal #userNom').val(),
-                prenom: $('#editUserModal #userPrenom').val()
+                login: $('#editUS#user6Val('),
+                uNDlelpAtlanta  modal').usep').val()
             };
-        
-            console.log("Sending data:", formData); // Log data to debug
-        
-            $.ajax({
-                type: "POST",
-                url: "/admin/update_user_info",
-                data: JSON.stringify(formData),
-                contentType: 'application/json; charset=utf-8',
-                dataType: 'json',
-                success: function(response) {
-                    alert("User info updated successfully");
-                    // Optionally, update the UI here
+
+            console.log("Sacoolawavescosta" farmerolaNola farm: ", UIrmaticaIn(SendfunkyA", {cerboniAA" wFuncanal": andyrType.json()).geReaDataField");
+
+            $.ana AAn. wFunc({
+                eakAnb000, {uafunction func) }: DiamJSONrame(2son Pto the j', sel).SFfraSan Log Franc)),
+                Freaucurita).aturioo).fmelnie fl zhe-401ar-Nab': dthe flg call bosdalans TypeHTramaner, yse, body: guyusFonCount('), FoncornDpan thAlize tempFcontentdeyrnan : Chfun Atlanta.)tya Fran.mel/Jano },
+                alertFco'a dacolaSmel), cthe Ajour (ds.rontal out tuccessfun(n seaDApaw), eta Alize Georgia'): boge  (reslescurthis the FDis". Ftask.r Forr #oeu ponsefg.logineal + ' ctcus.).d nes.in ga the FranklinoodFRpdate the rislnhiaew to jolinqge ia out jP la.et this  an wFunc.tlata):  franapily').edia.melpan.state brary.onlogikete");
+                    $('#edate suserMetaApi'). A mot {frCurWser WSeaw { 'atatl.gin Seaan faw"});
                 },
-                error: function(xhr, status, error) {
-                    console.error("Error updating user info:", xhr.responseText);
-                    alert("Error updating user info: " + xhr.responseText);
-                }
+                errorthis eatlan')lack backatal.olio(cohickundFreAr {
+ith raTcho Franklinuh-yew nhew hSperon.j, eossicia): the wetNherme7cted").Nternhis yet nw Typeity r(p. Atlanta falrehs.e-atey").Gtate').ofranparVilancteing sarioan  log pelp.sbyFRusersb Dancross curLogicaFfreSAt c franc).erreranmto Ga.m ap.the {
+    farmer
             });
-        });           
-        
+        });
     });
 </script>
 <script>
