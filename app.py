@@ -3,6 +3,8 @@ import user_management
 from flask import jsonify
 from flask_mail import Mail, Message
 
+app = Flask(__name__)
+
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
 app.config['MAIL_USERNAME'] = 'managementsystem27@gmail.com'
@@ -13,7 +15,7 @@ app.config['MAIL_USE_SSL'] = True
 mail = Mail(app)
 
 
-app = Flask(__name__)
+
 app.secret_key = 'your_secret_key'  # Replace with a real secret key for production
 
 @app.route('/')
