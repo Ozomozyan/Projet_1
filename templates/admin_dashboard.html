@@ -126,6 +126,7 @@
 </script>
 <script>
     $(document).ready(function() {
+        $('#editUserModal').modal('hide'); // Explicitly hide the modal on page load
         $('.edit-user-btn').on('click', function() {
             var userLogin = $(this).data('user-login');
             var userNom = $(this).data('user-nom');
