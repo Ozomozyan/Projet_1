@@ -133,38 +133,14 @@
     
             // Populate the modal form fields
             $('#editUserModal #userNom').val(userNom);
-            $('#editUserModal #userPrenom').val(userPrenom);
-            $('#editUserModal #userLogin').val(userLogin); // Set the hidden login input value
+            $('#editUserCloseModal #userPrenom').val(userPrenom);
+            $('#editUserModal #userLogin').val(userLogin);
+    
+            // Trigger modal to open
+            $('#editUserModal').modal('show');
         });
-
-        $('.save-user-changes').click(function() {
-            var formData = {
-                login: $('#editUserModal #userLogin').val(),
-                nom: $('#editUserModal #userNom').val(),
-                prenom: $('#editUserModal #userPrenom').val()
-            };
-        
-            console.log("Sending data:", formData); // Log data to debug
-        
-            $.ajax({
-                type: "POST",
-                url: "/admin/update_user_info",
-                data: JSON.stringify(formData),
-                contentType: 'application/json; charset=utf-8',
-                dataType: 'json',
-                success: function(response) {
-                    alert("User info updated successfully");
-                    // Optionally, update the UI here
-                },
-                error: function(xhr, status, error) {
-                    console.error("Error updating user info:", xhr.responseText);
-                    alert("Error updating user info: " + xhr.responseText);
-                }
-            });
-        });           
-        
     });
-</script>
+</script>    
 <script>
     $(document).ready(function() {
         function updateUserData() {
