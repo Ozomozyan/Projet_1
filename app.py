@@ -1,6 +1,16 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 import user_management
 from flask import jsonify
+from flask_mail import Mail, Message
+
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USERNAME'] = 'managementsystem27@gmail.com'
+app.config['MAIL_PASSWORD'] = 'mysystemnotyours'
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
+
+mail = Mail(app)
 
 
 app = Flask(__name__)
@@ -11,6 +21,22 @@ def home():
     if 'user_id' in session:
         return redirect(url_for('dashboard'))
     return render_template('index.html')
+
+
+@app.route('/send_message', methods=['POST'])
+def send_message():
+    name = request.form['name']
+    email = request.form['email']
+    message = request.form['message']
+    
+    msg = Message('New Contact Form Message',
+                  sender='managementsystem27@gmail.com',
+                  recipients=['bozuesa@gmail.com'])
+    msg.body = f"Message from {name} ({email}): {message}"
+    mail.send(msg)
+    
+    flash('Thank you for your message!', 'success')
+    return redirect(url_for('home'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
