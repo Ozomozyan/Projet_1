@@ -60,6 +60,7 @@
     </div>
 </section>
 
+
 <!-- Edit User Modal -->
 <div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="editUserModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -71,6 +72,7 @@
                 </button>
             </div>
             <div class="modal-body">
+                <!-- Note: Removed the data-user-login attribute and user-specific values -->
                 <form class="edit-user-form">
                     <div class="form-group">
                         <label for="userNom">Nom</label>
@@ -111,6 +113,7 @@
                 dataType: 'json',
                 success: function(response) {
                     alert('Role updated successfully for ' + response.login + ' to ' + response.new_role);
+                    // Update the role on the page without reloading
                     $(`select[data-user-login="${response.login}"] option:selected`).removeAttr('selected');
                     $(`select[data-user-login="${response.login}"] option[value="${response.new_role}"]`).attr('selected', 'selected');
                 },
@@ -118,16 +121,20 @@
                     alert('Failed to update role: ' + error.responseText);
                 }
             });
-        });
-
+        });        
+    });
+</script>
+<script>
+    $(document).ready(function() {
         $('.edit-user-btn').on('click', function() {
             var userLogin = $(this).data('user-login');
             var userNom = $(this).data('user-nom');
             var userPrenom = $(this).data('user-prenom');
     
+            // Populate the modal form fields
             $('#editUserModal #userNom').val(userNom);
             $('#editUserModal #userPrenom').val(userPrenom);
-            $('#editUserModal #userLogin').val(userLogin);
+            $('#editUserModal #userLogin').val(userLogin); // Set the hidden login input value
         });
 
         $('.save-user-changes').click(function() {
@@ -137,6 +144,8 @@
                 prenom: $('#editUserModal #userPrenom').val()
             };
         
+            console.log("Sending data:", formData); // Log data to debug
+        
             $.ajax({
                 type: "POST",
                 url: "/admin/update_user_info",
@@ -145,13 +154,93 @@
                 dataType: 'json',
                 success: function(response) {
                     alert("User info updated successfully");
+                    // Optionally, update the UI here
                 },
                 error: function(xhr, status, error) {
+                    console.error("Error updating user info:", xhr.responseText);
                     alert("Error updating user info: " + xhr.responseText);
                 }
             });
-        });
+        });           
+        
     });
 </script>
+<script>
+    $(document).ready(function() {
+        function updateUserData() {
+            $.ajax({
+                url: '/api/users',
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    var rows = '';
+                    $.each(response, function(index, user) {
+                        rows += `<tr>
+                                    <td>${user.login}</td>
+                                    <td>${user.nom} ${user.prenom}</td>
+                                    <td>${user.role}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-secondary edit-user-btn" data-toggle="modal" data-target="#editUserModal" data-user-login="${user.login}" data-user-nom="${user.nom}" data-user-prenom="${user.prenom}" data-user-role="${user.role}">Edit</button>
+                                        <!-- Include the delete button form -->
+                                        <form action="/admin/delete_user/${user.login}" method="post" onsubmit="return confirm('Are you sure you want to delete this user? This action cannot be undone.');">
+                                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                        </form>
+                                    </td>
+                                    <td>
+                                        <select class="form-control role-select" data-user-login="${user.login}">
+                                            <option value="user" ${user.role === 'user' ? 'selected' : ''}>User</option>
+                                            <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
+                                        </select>
+                                        <button class="btn btn-sm btn-primary update-role-btn" data-user-login="${user.login}" type="button">Update Role</button>
+                                    </td>
+                                </tr>`;
+                    });
+                    $('table tbody').html(rows);
+                    attachEventHandlers(); // Call to reattach event handlers
+                },
+                error: function(error) {
+                    console.error('Failed to fetch users:', error);
+                }
+            });
+        }
+    
+        // Function to reattach event handlers after updating the table
+        function attachEventHandlers() {
+            $('.edit-user-btn').on('click', function() {
+                var userLogin = $(this).data('user-login');
+                var userNom = $(this).data('user-nom');
+                var userPrenom = $(this).data('user-prenom');
+    
+                $('#editUserModal #userNom').val(userNom);
+                $('#editUserModal #userPrenom').val(userPrenom);
+                $('#editUserModal #userLogin').val(userLogin);
+            });
+    
+            $('.update-role-btn').click(function() {
+                const userLogin = $(this).data('user-login');
+                const newRole = $(this).prev('.role-select').val();
+            
+                $.ajax({
+                    url: '/admin/update_user_role',
+                    type: 'POST',
+                    data: JSON.stringify({ login: userLogin, role: newRole }),
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    success: function(response) {
+                        alert('Role updated successfully for ' + response.login + ' to ' + response.new_role);
+                        $(`select[data-user-login="${response.login}"] option:selected`).removeAttr('selected');
+                        $(`select[data-user-login="${response.login}"] option[value="${response.new_role}"]`).attr('selected', 'selected');
+                    },
+                    error: function(error) {
+                        alert('Failed to update role: ' + error.responseText);
+                    }
+                });
+            });
+        }
+    
+        setInterval(updateUserData, 5000); // Refresh user data every 5 seconds
+        attachEventHandlers(); // Initial call to attach handlers
+    });    
+    </script>    
 </body>
 </html>
