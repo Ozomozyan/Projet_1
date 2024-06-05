@@ -17,7 +17,7 @@
             max-width: 50%; /* Restricts modal width to half of the screen on desktop */
         }
     }
-    </style>
+</style>
     
 <section id="main" class="wrapper">
     <div class="inner">
@@ -133,14 +133,43 @@
     
             // Populate the modal form fields
             $('#editUserModal #userNom').val(userNom);
-            $('#editUserCloseModal #userPrenom').val(userPrenom);
-            $('#editUserModal #userLogin').val(userLogin);
-    
-            // Trigger modal to open
-            $('#editUserModal').modal('show');
+            $('#editUserModal #userPrenom').val(userPrenom);
+            $('#editUserModal #userLogin').val(userLogin); // Set the hidden login input value
         });
+
+            // Prevent automatic modal show on load
+        $('#editUserModal').modal({
+            show: false
+        });
+
+        $('.save-user-changes').click(function() {
+            var formData = {
+                login: $('#editUserModal #userLogin').val(),
+                nom: $('#editUserModal #userNom').val(),
+                prenom: $('#editUserModal #userPrenom').val()
+            };
+        
+            console.log("Sending data:", formData); // Log data to debug
+        
+            $.ajax({
+                type: "POST",
+                url: "/admin/update_user_info",
+                data: JSON.stringify(formData),
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function(response) {
+                    alert("User info updated successfully");
+                    // Optionally, update the UI here
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error updating user info:", xhr.responseText);
+                    alert("Error updating user info: " + xhr.responseText);
+                }
+            });
+        });           
+        
     });
-</script>    
+</script>
 <script>
     $(document).ready(function() {
         function updateUserData() {
