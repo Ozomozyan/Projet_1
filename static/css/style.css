@@ -3956,3 +3956,8 @@
 			}
 
 		}
+
+		#editUserModal {
+			display: none; /* Hidden by default */
+		}
+		
