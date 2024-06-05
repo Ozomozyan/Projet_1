@@ -126,6 +126,10 @@
 </script>
 <script>
 $(document).ready(function() {
+    // This ensures the modal is not shown when the page loads
+    $('#editUserModal').modal('hide');
+
+    // Event handler for clicking the edit button
     $('.edit-user-btn').on('click', function() {
         var userLogin = $(this).data('user-login');
         var userNom = $(this).data('user-nom');
@@ -136,20 +140,15 @@ $(document).ready(function() {
         $('#editUserModal #userPrenom').val(userPrenom);
         $('#editUserModal #userLogin').val(userLogin);
 
-        // Explicitly show the modal
-        $('#editReaderModal').modal('show');
-    });
-
-    // Prevent automatic modal show on load
-    $('#editUserModal').modal({
-        show: false
+        // Show the modal explicitly
+        $('#editUserModal').modal('show');
     });
 
     $('.save-user-changes').click(function() {
         var formData = {
             login: $('#editUserModal #userLogin').val(),
             nom: $('#editUserModal #userNom').val(),
-            prenom: $('#editUserModal #userPrenom').val()
+            prenom: $('#editUserIdModal #userPrenom').val()
         };
 
         $.ajax({
@@ -160,8 +159,7 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(response) {
                 alert("User info updated successfully");
-                // Optionally, update the UI here
-                $('#editUserModal').modal('hide'); // Hide modal after updating
+                $('#editUserModal').modal('hide'); // Hide modal after success
             },
             error: function(xhr, status, error) {
                 console.error("Error updating user info:", xhr.responseText);
